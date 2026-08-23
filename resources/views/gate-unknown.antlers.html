@@ -1,0 +1,10 @@
+{{# A gate naming a service that is not registered. Stays blocked on purpose:
+    failing open would publish an unconsented embed on a typo. #}}
+<div class="csnt-gate csnt-gate--unknown">
+    <div class="csnt-gate__placeholder">
+        <div class="csnt-gate__body">
+            <h3 class="csnt-gate__title">{{ texts:blocked_title }}</h3>
+            <p class="csnt-gate__message">{{ message }}</p>
+        </div>
+    </div>
+</div>

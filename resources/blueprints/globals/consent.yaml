@@ -1,0 +1,129 @@
+title: Consent
+tabs:
+  banner:
+    display: Banner
+    sections:
+      -
+        fields:
+          -
+            handle: banner_title
+            field:
+              type: text
+              display: 'Überschrift'
+              localizable: true
+              instructions: 'Leer lassen für den mitgelieferten Text.'
+          -
+            handle: banner_description
+            field:
+              type: textarea
+              display: 'Text'
+              localizable: true
+          -
+            handle: accept_all_label
+            field: { type: text, display: 'Beschriftung: Alle akzeptieren', localizable: true }
+          -
+            handle: only_necessary_label
+            field: { type: text, display: 'Beschriftung: Nur essenzielle', localizable: true }
+          -
+            handle: settings_label
+            field: { type: text, display: 'Beschriftung: Einstellungen', localizable: true }
+          -
+            handle: privacy_policy_url
+            field: { type: link, display: 'Datenschutzerklärung', localizable: true }
+          -
+            handle: imprint_url
+            field: { type: link, display: 'Impressum', localizable: true }
+  modal:
+    display: Dialog
+    sections:
+      -
+        fields:
+          -
+            handle: modal_title
+            field: { type: text, display: 'Überschrift', localizable: true }
+          -
+            handle: modal_description
+            field: { type: textarea, display: 'Text', localizable: true }
+          -
+            handle: save_label
+            field: { type: text, display: 'Beschriftung: Auswahl speichern', localizable: true }
+          -
+            handle: reject_all_label
+            field: { type: text, display: 'Beschriftung: Alle ablehnen', localizable: true }
+  services:
+    display: Dienste
+    sections:
+      -
+        instructions: 'Ein Eintrag je Drittanbieter, der Daten bekommt. Der Handle steht in den Templates — nach dem Livegang nicht mehr ändern.'
+        fields:
+          -
+            handle: services
+            field:
+              type: replicator
+              display: Dienste
+              collapse: accordion
+              sets:
+                service:
+                  display: Dienst
+                  fields:
+                    -
+                      handle: handle
+                      field:
+                        type: text
+                        display: Handle
+                        instructions: 'Kleinbuchstaben, z. B. youtube. Wird in {{ consent:gate }} verwendet.'
+                        validate: [required]
+                    -
+                      handle: name
+                      field: { type: text, display: Name, localizable: true, validate: [required] }
+                    -
+                      handle: description
+                      field: { type: textarea, display: Beschreibung, localizable: true }
+                    -
+                      handle: category
+                      field:
+                        type: select
+                        display: Kategorie
+                        options:
+                          essential: Essenziell
+                          analytics: Analysen
+                          external_media: 'Externe Medien'
+                          marketing: Marketing
+                        validate: [required]
+                    -
+                      handle: policy_url
+                      field: { type: link, display: 'Datenschutzerklärung des Anbieters' }
+                    -
+                      handle: block_content
+                      field:
+                        type: toggle
+                        display: 'Einbindungen blockieren (Zwei-Klick)'
+                        instructions: 'An, wenn dieser Dienst Inhalte einbettet (Video, Karte). Aus für reine Skripte.'
+                        default: true
+                    -
+                      handle: block_message
+                      field: { type: textarea, display: 'Text auf der blockierten Fläche', localizable: true }
+  categories:
+    display: Kategorien
+    sections:
+      -
+        fields:
+          -
+            handle: categories
+            field:
+              type: replicator
+              display: Kategorien
+              collapse: accordion
+              sets:
+                category:
+                  display: Kategorie
+                  fields:
+                    -
+                      handle: handle
+                      field: { type: text, display: Handle, validate: [required] }
+                    -
+                      handle: name
+                      field: { type: text, display: Name, localizable: true, validate: [required] }
+                    -
+                      handle: description
+                      field: { type: textarea, display: Beschreibung, localizable: true }

@@ -1,0 +1,21 @@
+{{# Two-click gate. The embed sits in a <template>: parsed, not loaded. #}}
+<div class="csnt-gate" data-consent-gate="{{ service:handle }}">
+    <template data-consent-embed>{{ embed | raw }}</template>
+
+    <div class="csnt-gate__placeholder">
+        {{ if cover }}
+            <img class="csnt-gate__cover" src="{{ cover }}" alt="" referrerpolicy="no-referrer" loading="lazy">
+        {{ /if }}
+        <div class="csnt-gate__body">
+            <h3 class="csnt-gate__title">{{ if title }}{{ title }}{{ else }}{{ service:name }}{{ /if }}</h3>
+            <p class="csnt-gate__message">{{ if service:block_message }}{{ service:block_message }}{{ else }}{{ texts:blocked_message }}{{ /if }}</p>
+            {{ if service:policy_url }}
+                <a class="csnt-gate__policy" href="{{ service:policy_url }}" target="_blank" rel="noopener noreferrer">{{ policy_label }}</a>
+            {{ /if }}
+            <div class="csnt-gate__actions">
+                <button type="button" class="csnt-btn csnt-btn--primary" data-consent-allow="{{ service:handle }}">{{ texts:blocked_button_label }}</button>
+                <button type="button" class="csnt-btn csnt-btn--ghost" data-consent-open>{{ texts:settings_label }}</button>
+            </div>
+        </div>
+    </div>
+</div>

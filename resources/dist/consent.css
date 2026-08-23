@@ -1,0 +1,221 @@
+/**
+ * Statamic Consent — default styling.
+ *
+ * Everything is driven by custom properties so a theme can restyle the banner
+ * by setting five variables instead of overriding thirty rules. Set
+ * `assets.styles` to false in the config to drop this file entirely; the class
+ * names are the documented contract either way.
+ */
+/* A display rule beats the browser's own [hidden] { display: none }, so every
+   element this addon hides needs to say so itself. Without this the dialog is
+   open on first paint, which is how the banner ends up behind its own modal. */
+.csnt[hidden],
+.csnt-banner[hidden],
+.csnt-modal[hidden],
+.csnt-gate__placeholder[hidden] {
+  display: none !important;
+}
+
+:root {
+  --csnt-bg: #ffffff;
+  --csnt-fg: #16181d;
+  --csnt-muted: #5b6472;
+  --csnt-border: #e2e5ea;
+  --csnt-accent: #16181d;
+  --csnt-accent-fg: #ffffff;
+  --csnt-radius: 12px;
+  --csnt-shadow: 0 12px 40px -12px rgba(16, 18, 22, 0.35);
+  --csnt-z: 2147483000;
+}
+
+.csnt-locked { overflow: hidden; }
+
+.csnt-banner {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: var(--csnt-z);
+  padding: 1rem;
+  background: var(--csnt-bg);
+  color: var(--csnt-fg);
+  border-top: 1px solid var(--csnt-border);
+  box-shadow: var(--csnt-shadow);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.csnt-banner__inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+.csnt-banner__text { flex: 1 1 22rem; }
+.csnt-banner__title { margin: 0 0 0.25rem; font-size: 1rem; font-weight: 600; }
+.csnt-banner__description { margin: 0; color: var(--csnt-muted); }
+.csnt-banner__links { margin: 0.5rem 0 0; display: flex; gap: 1rem; font-size: 0.8125rem; }
+.csnt-banner__links a { color: var(--csnt-muted); }
+
+.csnt-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.csnt-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: calc(var(--csnt-radius) - 4px);
+  padding: 0.625rem 1rem;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  background: transparent;
+  color: inherit;
+}
+
+.csnt-btn:focus-visible { outline: 2px solid var(--csnt-accent); outline-offset: 2px; }
+.csnt-btn--primary { background: var(--csnt-accent); color: var(--csnt-accent-fg); }
+.csnt-btn--secondary { border-color: var(--csnt-border); background: var(--csnt-bg); }
+.csnt-btn--ghost { color: var(--csnt-muted); text-decoration: underline; padding-inline: 0.25rem; }
+
+/* Every path out of the banner is one click and looks like the others. A
+   "reject" hidden two levels deep is the dark pattern regulators name first. */
+.csnt-banner__actions .csnt-btn--secondary,
+.csnt-banner__actions .csnt-btn--primary { min-width: 9rem; justify-content: center; }
+
+.csnt-modal {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--csnt-z) + 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.csnt-modal__backdrop { position: absolute; inset: 0; background: rgba(16, 18, 22, 0.55); }
+
+.csnt-modal__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(38rem, 100%);
+  max-height: min(85vh, 46rem);
+  background: var(--csnt-bg);
+  color: var(--csnt-fg);
+  border-radius: var(--csnt-radius);
+  box-shadow: var(--csnt-shadow);
+  overflow: hidden;
+}
+
+.csnt-modal__header,
+.csnt-modal__footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+}
+
+.csnt-modal__header { justify-content: space-between; border-bottom: 1px solid var(--csnt-border); }
+.csnt-modal__footer { flex-wrap: wrap; justify-content: flex-end; border-top: 1px solid var(--csnt-border); }
+.csnt-modal__title { margin: 0; font-size: 1.0625rem; font-weight: 600; }
+.csnt-modal__close { appearance: none; border: 0; background: none; font-size: 1.5rem; line-height: 1; cursor: pointer; color: var(--csnt-muted); }
+.csnt-modal__body { padding: 1.25rem; overflow-y: auto; }
+.csnt-modal__description { margin: 0 0 1.25rem; color: var(--csnt-muted); font-size: 0.9375rem; }
+
+.csnt-category + .csnt-category { margin-top: 1.5rem; }
+.csnt-category__title { margin: 0 0 0.25rem; font-size: 0.9375rem; font-weight: 600; }
+.csnt-category__description { margin: 0 0 0.75rem; color: var(--csnt-muted); font-size: 0.8125rem; }
+
+.csnt-service {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--csnt-border);
+}
+
+.csnt-service__text { display: flex; flex-direction: column; gap: 0.125rem; }
+.csnt-service__name { font-size: 0.9375rem; font-weight: 500; }
+.csnt-service__description,
+.csnt-service__policy { font-size: 0.8125rem; color: var(--csnt-muted); }
+.csnt-service__always { font-size: 0.8125rem; color: var(--csnt-muted); white-space: nowrap; }
+
+.csnt-switch { position: relative; display: inline-flex; align-items: center; cursor: pointer; flex: none; }
+.csnt-switch__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.csnt-switch input { position: absolute; opacity: 0; width: 2.75rem; height: 1.5rem; margin: 0; cursor: pointer; }
+.csnt-switch__track {
+  width: 2.75rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: var(--csnt-border);
+  transition: background 0.15s ease;
+}
+.csnt-switch__track::after {
+  content: "";
+  display: block;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: 0.1875rem;
+  border-radius: 999px;
+  background: var(--csnt-bg);
+  transition: transform 0.15s ease;
+}
+.csnt-switch input:checked + .csnt-switch__track { background: var(--csnt-accent); }
+.csnt-switch input:checked + .csnt-switch__track::after { transform: translateX(1.25rem); }
+.csnt-switch input:focus-visible + .csnt-switch__track { outline: 2px solid var(--csnt-accent); outline-offset: 2px; }
+
+.csnt-gate { position: relative; }
+
+.csnt-gate__placeholder {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 16rem;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--csnt-border);
+  border-radius: var(--csnt-radius);
+  background: color-mix(in srgb, var(--csnt-fg) 4%, var(--csnt-bg));
+  text-align: center;
+}
+
+.csnt-gate__cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(6px) saturate(0.6); opacity: 0.5; }
+.csnt-gate__body { position: relative; display: flex; flex-direction: column; gap: 0.5rem; align-items: center; max-width: 26rem; padding: 1.5rem; }
+.csnt-gate__title { margin: 0; font-size: 1rem; font-weight: 600; }
+.csnt-gate__message { margin: 0; color: var(--csnt-muted); font-size: 0.875rem; }
+.csnt-gate__policy { font-size: 0.8125rem; color: var(--csnt-muted); }
+.csnt-gate__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.5rem; }
+
+.csnt-settings-link { appearance: none; border: 0; background: none; padding: 0; font: inherit; color: inherit; text-decoration: underline; cursor: pointer; }
+
+@media (max-width: 40rem) {
+  .csnt-banner__actions { width: 100%; }
+  .csnt-banner__actions .csnt-btn--secondary,
+  .csnt-banner__actions .csnt-btn--primary { flex: 1 1 auto; }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-consent-theme="light"]) {
+    --csnt-bg: #16181d;
+    --csnt-fg: #f3f4f6;
+    --csnt-muted: #a2acbb;
+    --csnt-border: #2b3038;
+    --csnt-accent: #f3f4f6;
+    --csnt-accent-fg: #16181d;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .csnt-switch__track,
+  .csnt-switch__track::after { transition: none; }
+}
