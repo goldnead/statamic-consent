@@ -9,30 +9,30 @@ tabs:
             handle: banner_title
             field:
               type: text
-              display: 'Überschrift'
+              display: Heading
               localizable: true
-              instructions: 'Leer lassen für den mitgelieferten Text.'
+              instructions: 'Leave empty for the shipped text.'
           -
             handle: banner_description
             field:
               type: textarea
-              display: 'Text'
+              display: Text
               localizable: true
           -
             handle: accept_all_label
-            field: { type: text, display: 'Beschriftung: Alle akzeptieren', localizable: true }
+            field: { type: text, display: 'Button: accept all', localizable: true }
           -
             handle: only_necessary_label
-            field: { type: text, display: 'Beschriftung: Nur essenzielle', localizable: true }
+            field: { type: text, display: 'Button: essential only', localizable: true }
           -
             handle: settings_label
-            field: { type: text, display: 'Beschriftung: Einstellungen', localizable: true }
+            field: { type: text, display: 'Button: settings', localizable: true }
           -
             handle: privacy_policy_url
-            field: { type: link, display: 'Datenschutzerklärung', localizable: true }
+            field: { type: link, display: 'Privacy policy', localizable: true }
           -
             handle: imprint_url
-            field: { type: link, display: 'Impressum', localizable: true }
+            field: { type: link, display: Imprint, localizable: true }
   modal:
     display: Dialog
     sections:
@@ -40,71 +40,71 @@ tabs:
         fields:
           -
             handle: modal_title
-            field: { type: text, display: 'Überschrift', localizable: true }
+            field: { type: text, display: Heading, localizable: true }
           -
             handle: modal_description
-            field: { type: textarea, display: 'Text', localizable: true }
+            field: { type: textarea, display: Text, localizable: true }
           -
             handle: save_label
-            field: { type: text, display: 'Beschriftung: Auswahl speichern', localizable: true }
+            field: { type: text, display: 'Button: save selection', localizable: true }
           -
             handle: reject_all_label
-            field: { type: text, display: 'Beschriftung: Alle ablehnen', localizable: true }
+            field: { type: text, display: 'Button: reject all', localizable: true }
   services:
-    display: Dienste
+    display: Services
     sections:
       -
-        instructions: 'Ein Eintrag je Drittanbieter, der Daten bekommt. Der Handle steht in den Templates — nach dem Livegang nicht mehr ändern.'
+        instructions: 'One entry per third party that receives data. The handle appears in your templates: do not change it after launch.'
         fields:
           -
             handle: services
             field:
               type: replicator
-              display: Dienste
+              display: Services
               collapse: accordion
               sets:
                 service:
-                  display: Dienst
+                  display: Service
                   fields:
                     -
                       handle: handle
                       field:
                         type: text
                         display: Handle
-                        instructions: 'Kleinbuchstaben, z. B. youtube. Wird in {{ consent:gate }} verwendet.'
+                        instructions: 'Lowercase, e.g. youtube. Used by {{ consent:gate }}.'
                         validate: [required]
                     -
                       handle: name
                       field: { type: text, display: Name, localizable: true, validate: [required] }
                     -
                       handle: description
-                      field: { type: textarea, display: Beschreibung, localizable: true }
+                      field: { type: textarea, display: Description, localizable: true }
                     -
                       handle: category
                       field:
                         type: select
-                        display: Kategorie
+                        display: Category
                         options:
-                          essential: Essenziell
-                          analytics: Analysen
-                          external_media: 'Externe Medien'
+                          essential: Essential
+                          analytics: Analytics
+                          external_media: 'External media'
                           marketing: Marketing
                         validate: [required]
                     -
                       handle: policy_url
-                      field: { type: link, display: 'Datenschutzerklärung des Anbieters' }
+                      field: { type: link, display: "Provider's privacy policy" }
                     -
                       handle: block_content
                       field:
                         type: toggle
-                        display: 'Einbindungen blockieren (Zwei-Klick)'
-                        instructions: 'An, wenn dieser Dienst Inhalte einbettet (Video, Karte). Aus für reine Skripte.'
+                        display: 'Block embeds (two-click)'
+                        instructions: 'On when this service embeds content (video, map). Off for scripts.'
                         default: true
                     -
                       handle: block_message
-                      field: { type: textarea, display: 'Text auf der blockierten Fläche', localizable: true }
+                      field: { type: textarea, display: 'Text on the blocked placeholder', localizable: true }
   categories:
-    display: Kategorien
+    display: Categories
     sections:
       -
         fields:
@@ -112,18 +112,23 @@ tabs:
             handle: categories
             field:
               type: replicator
-              display: Kategorien
+              display: Categories
               collapse: accordion
               sets:
                 category:
-                  display: Kategorie
+                  display: Category
                   fields:
                     -
                       handle: handle
                       field: { type: text, display: Handle, validate: [required] }
                     -
+                      # Not required: the four shipped categories are seeded with a
+                      # handle only, so that the name comes from the translation
+                      # files and follows the visitor's language. Requiring it here
+                      # would lock the whole screen behind four fields the client
+                      # never created.
                       handle: name
-                      field: { type: text, display: Name, localizable: true, validate: [required] }
+                      field: { type: text, display: Name, localizable: true, instructions: 'Leave empty for the shipped text.' }
                     -
                       handle: description
-                      field: { type: textarea, display: Beschreibung, localizable: true }
+                      field: { type: textarea, display: Description, localizable: true }

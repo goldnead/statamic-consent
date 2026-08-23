@@ -2,7 +2,6 @@
 
 namespace Goldnead\StatamicConsent;
 
-use Goldnead\StatamicConsent\Console\InstallCommand;
 use Goldnead\StatamicConsent\Support\Registry;
 use Statamic\Providers\AddonServiceProvider;
 
@@ -16,10 +15,6 @@ class ServiceProvider extends AddonServiceProvider
      * explicitly in register() with an absolute path instead.
      */
     protected $config = false;
-
-    protected $commands = [
-        InstallCommand::class,
-    ];
 
     public function register()
     {

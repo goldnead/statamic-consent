@@ -1,6 +1,6 @@
 <?php
 
-namespace Goldnead\StatamicConsent\Console;
+namespace Goldnead\StatamicConsent\Commands;
 
 use Illuminate\Console\Command;
 use Statamic\Console\RunsInPlease;
@@ -11,6 +11,10 @@ class InstallCommand extends Command
 {
     use RunsInPlease;
 
+    /**
+     * The `statamic:` prefix is what groups it under artisan; `please` strips it,
+     * so the command a site actually types is `php please consent:install`.
+     */
     protected $signature = 'statamic:consent:install {--force : Overwrite published assets and blueprint}';
 
     protected $description = 'Publish the consent assets and create the editable global set';
@@ -50,11 +54,19 @@ class InstallCommand extends Command
 
         $set = GlobalSet::make('consent')->title('Consent');
 
+        // Statamic 6 saves the set and its localization separately; the set has
+        // to exist on disk before a localization can be written against it.
+        // (Statamic 5's addLocalization() is gone — this fails loudly on the
+        // real thing and not at all in a package test.)
+        $set->save();
+
         // Seeded from the config file, so the client opens the CP and finds the
         // services this site actually uses rather than an empty screen. Handles
         // match the config, which is what keeps existing {{ consent:gate }} tags
         // working after the switch to the global set.
-        $localization = $set->makeLocalization(Site::default()->handle())->data([
+        $variables = $set->makeLocalization(Site::default()->handle());
+
+        $variables->data([
             'services' => collect(config('statamic-consent.services', []))
                 ->map(fn (array $service): array => array_merge(['type' => 'service', 'enabled' => true], $service))
                 ->all(),
@@ -63,8 +75,7 @@ class InstallCommand extends Command
                 ->all(),
         ]);
 
-        $set->addLocalization($localization);
-        $set->save();
+        $variables->save();
 
         $this->components->twoColumnDetail('Global set <comment>consent</comment>', '<info>created</>');
     }

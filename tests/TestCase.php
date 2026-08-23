@@ -4,9 +4,16 @@ namespace Goldnead\StatamicConsent\Tests;
 
 use Goldnead\StatamicConsent\ServiceProvider;
 use Statamic\Testing\AddonTestCase;
+use Statamic\Testing\Concerns\PreventsSavingStacheItemsToDisk;
 
 abstract class TestCase extends AddonTestCase
 {
+    /**
+     * Without this, a test that saves a global set leaves the file behind and
+     * the next run passes or fails depending on the previous one.
+     */
+    use PreventsSavingStacheItemsToDisk;
+
     protected string $addonServiceProvider = ServiceProvider::class;
 
     /**

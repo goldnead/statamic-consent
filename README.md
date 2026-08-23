@@ -1,29 +1,37 @@
+<!-- statamic:hide -->
 # Statamic Consent
+> Cookie banner and two-click embed gate, editable in the control panel.
+<!-- /statamic:hide -->
 
-Cookie banner and two-click embed gate for Statamic 6, editable in the control panel.
+Built for sites where the same person maintains the site and answers for it: the wording lives in a
+global set the client can edit, the handles live in the config file the developer controls, and a
+blocked embed is genuinely absent from the page rather than hidden with CSS.
 
-Built for sites where the same person maintains the site and answers for it: the wording lives in
-a global set the client can edit, the handles live in the config file the developer controls, and
-a blocked embed is genuinely absent from the page rather than hidden with CSS.
+![The services list in the control panel](docs/cp-services.png)
 
 ## Requirements
 
-- PHP 8.2 or newer
-- Statamic 6
+Statamic 6 · PHP 8.2+ · no queue, no database, no build step.
 
-## Install
+## Installation
 
 ```bash
 composer require goldnead/statamic-consent
-php please statamic:consent:install
+php please consent:install
 ```
 
-The install command publishes the assets to `public/vendor/statamic-consent`, publishes the
-blueprint, and creates the `consent` global set seeded from the config file. Re-run it after every
-update — the assets are overwritten on purpose, because a half-updated pair of `consent.js` and
-`consent.css` behaves like the previous release.
+(Under `php artisan` the same command is `statamic:consent:install`; `please` drops the prefix.)
 
-Then, in your layout:
+The install command publishes the assets to `public/vendor/statamic-consent`, publishes the
+blueprint to `resources/blueprints/globals/consent.yaml`, and creates the **Consent** global set,
+seeded from the config file. It then appears in the control panel under **Globals → Consent**.
+
+**Re-run `php please consent:install` after every update.** The assets are overwritten on purpose: a
+half-updated pair of `consent.js` and `consent.css` behaves like the previous release.
+
+## Usage
+
+In your layout:
 
 ```antlers
 <head>
@@ -39,13 +47,15 @@ Then, in your layout:
 `{{ consent:settings_link }}` belongs on every page. A decision that cannot be revisited is not a
 decision that was freely given.
 
-## Blocking an embed
+### Blocking an embed
 
 ```antlers
 {{ consent:gate service="youtube" title="Konzertmitschnitt" cover="/img/cover.jpg" }}
     <iframe src="https://www.youtube.com/embed/xyz" allowfullscreen></iframe>
 {{ /consent:gate }}
 ```
+
+![A blocked embed](docs/gate.png)
 
 The iframe is parked in a `<template>`. Browsers parse a template but issue no requests for what is
 inside it, so nothing reaches YouTube until the visitor presses the button. Rendering the iframe and
@@ -54,53 +64,52 @@ hiding it with CSS would look identical and be exactly the violation this tag ex
 A gate naming a service that is not configured stays blocked and says so, rather than falling
 through — a typo must not publish an unconsented embed.
 
-## Blocking a script
+### Blocking a script
 
 ```html
 <script type="text/plain" data-consent-service="analytics_pixel" src="https://…"></script>
 ```
 
-Parked scripts are re-created as real script elements once the service is allowed. Setting `.type`
-on the existing node would do nothing; the browser decided how to treat it at parse time.
+Parked scripts are re-created as real script elements once the service is allowed. Setting `.type` on
+the existing node would do nothing; the browser decided how to treat it at parse time.
 
-## Tags
+### Tags
 
-| Tag | What it does |
-|---|---|
-| `{{ consent:head }}` | Stylesheet, inline configuration, script. Belongs in `<head>`. |
-| `{{ consent:banner }}` | The banner and the settings dialog. Belongs before `</body>`. |
-| `{{ consent:gate service="…" }}` | Two-click gate around an embed. Takes `title` and `cover`. |
-| `{{ consent:granted service="…" }}` | Renders its contents only with consent, server-side. |
-| `{{ consent:settings_link }}` | A button that reopens the dialog. Takes `label` and `class`. |
+| Tag | Parameters | What it does |
+|---|---|---|
+| `{{ consent:head }}` | — | Stylesheet, inline configuration, script. Belongs in `<head>`. |
+| `{{ consent:banner }}` | — | The banner and the settings dialog. Belongs before `</body>`. |
+| `{{ consent:gate }}` | `service` (required), `title`, `cover` | Two-click gate around an embed. |
+| `{{ consent:granted }}` | `service` (required) | Renders its contents only with consent, server-side. |
+| `{{ consent:settings_link }}` | `label`, `class` | A button that reopens the dialog. |
 
 `{{ consent:granted }}` reads the cookie on the server, so it is wrong on a page served from a
 full-page cache. Use the gate for anything that loads a third party; use `granted` for prose.
 
+![The settings dialog](docs/dialog.png)
+
 ## Configuration
 
-`config/statamic-consent.php` owns the handles, the cookie and the behaviour. The `consent` global
-set owns the wording, and overrides the config key by key — a field left empty falls back to the
+`config/statamic-consent.php` owns the handles, the cookie and the behaviour. The **Consent** global
+set owns the wording and overrides the config key by key — a field left empty falls back to the
 shipped text in the visitor's language rather than rendering blank.
 
-Two settings are worth understanding:
+| Key | Default | What happens when it is wrong |
+|---|---|---|
+| `cookie.name` | `statamic_consent` | Renaming it after launch discards every stored decision; every visitor is asked again. |
+| `cookie.days` | `182` | Longer than 12 months is not defensible under the GDPR. |
+| `cookie.same_site` | `Lax` | `None` without `Secure` makes browsers drop the cookie entirely. |
+| `version` | `1` | Raise it when you add a non-essential service. Leaving it lets an old yes cover something the visitor never saw. |
+| `reject_on_dismiss` | `true` | Setting it false treats a closed banner as consent, which it is not. |
+| `respect_gpc` | `true` | Honours the Global Privacy Control signal, which German courts have read as a valid objection. |
+| `assets.styles` | `true` | Off means you ship your own CSS against the class names below. |
+| `assets.scripts` | `true` | Off disables the addon entirely; nothing unlocks. |
+| `categories` | four | A category with no services is dropped from the dialog. |
+| `services` | three | The `handle` is what templates refer to. Renaming one after launch breaks every gate that names it. |
 
-- **`version`** — raising it invalidates every stored decision and asks again. Do that when you add
-  a service that is not essential: the old yes never covered it.
-- **`reject_on_dismiss`** — keep it true. Under the GDPR, no decision is a rejection.
+### Styling
 
-`respect_gpc` honours the Global Privacy Control browser signal, which German courts have read as a
-valid objection. A visitor sending it is recorded as having rejected, without being asked again.
-
-## What it stores
-
-A first-party cookie (`statamic_consent`, six months) and a localStorage mirror, holding the granted
-handles, a timestamp, how the decision was made, and a random id. Nothing is sent anywhere. There is
-no server-side consent log — if you need one for evidence, that is a separate decision, not
-something this addon does behind your back.
-
-## Styling
-
-The default stylesheet is driven by custom properties. To restyle, set them:
+The stylesheet is driven by custom properties:
 
 ```css
 :root {
@@ -110,21 +119,67 @@ The default stylesheet is driven by custom properties. To restyle, set them:
 }
 ```
 
-To replace it entirely, set `assets.styles` to `false` and write your own CSS against the documented
-class names (`csnt-banner`, `csnt-modal`, `csnt-gate`, …). The class names are part of the public
-API; the rules are not.
+**Dark mode is opt-in.** Set `data-consent-theme="dark"` on `<html>` for always dark, or `"auto"` to
+follow the operating system. Without it the banner stays light, because a widget that follows
+`prefers-color-scheme` on its own puts a dark dialog on a light site.
 
-## The JavaScript API
+![The dialog in a dark theme](docs/dialog-dark.png)
+
+To replace the stylesheet entirely, set `assets.styles` to `false` and write your own CSS against the
+class names (`csnt-banner`, `csnt-modal`, `csnt-gate`, `csnt-switch`, …). **The class names and the
+published view paths (`resources/views/vendor/statamic-consent/`) are public API**; the CSS rules are
+not.
+
+### JavaScript
 
 ```js
 StatamicConsent.granted('youtube')   // boolean
 StatamicConsent.open()               // open the dialog
+StatamicConsent.rejectAll()
 StatamicConsent.reset()              // forget the decision, show the banner
 document.addEventListener('consent:changed', e => e.detail.granted)
 ```
 
+## Multi-site
+
+**The wording is per site; the handles are shared.** The global set is localisable, so each site has
+its own banner text and service names, and a site without its own localisation falls back to the
+default site. Service handles come from the config file and are therefore identical everywhere — a
+`{{ consent:gate service="youtube" }}` in a shared layout behaves the same on every site.
+
+The consent cookie is per domain, as browsers define it. Sites on separate domains ask separately;
+sites on paths of one domain share one decision.
+
+## What it stores
+
+A first-party cookie (`statamic_consent`, six months) and a localStorage mirror, holding the granted
+handles, a timestamp, how the decision was made and a random id. **Nothing is sent anywhere** — the
+addon has no telemetry, no phone-home and no server-side consent log. If you need a stored record for
+evidence, that is a separate decision, not something this addon does behind your back.
+
+## Uninstalling
+
+```bash
+composer remove goldnead/statamic-consent
+rm -rf public/vendor/statamic-consent resources/views/vendor/statamic-consent
+rm resources/blueprints/globals/consent.yaml config/statamic-consent.php
+rm -rf content/globals/consent.yaml content/globals/*/consent.yaml
+```
+
+Then remove the tags from your layout. Visitors keep a stale `statamic_consent` cookie until it
+expires; it is inert.
+
 ## What this addon does not do
 
 It is not a legal opinion, and it does not discover what your site loads. Every third party has to be
-entered as a service, and an embed only gets blocked where a gate is put around it. It also does not
-scan your theme to check that you did.
+entered as a service, and an embed only gets blocked where a gate is put around it. It does not scan
+your theme to check that you did.
+
+## Support
+
+Only the latest version is supported. Issues:
+<https://github.com/goldnead/statamic-consent/issues>
+
+## Changelog · License
+
+[CHANGELOG.md](CHANGELOG.md) · [LICENSE.md](LICENSE.md)

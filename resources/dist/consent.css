@@ -204,8 +204,28 @@
   .csnt-banner__actions .csnt-btn--primary { flex: 1 1 auto; }
 }
 
+/* Dark mode is opt-in, never automatic.
+ *
+ * Following prefers-color-scheme on its own produces a dark banner on a light
+ * site for every visitor whose system is dark — the widget would be deciding
+ * the page's palette, which is not its call. The theme says what it wants:
+ *
+ *   <html data-consent-theme="dark">   always dark
+ *   <html data-consent-theme="auto">   follow the operating system
+ *
+ * and a theme that already has its own switch simply overrides the custom
+ * properties instead. */
+:root[data-consent-theme="dark"] {
+  --csnt-bg: #16181d;
+  --csnt-fg: #f3f4f6;
+  --csnt-muted: #a2acbb;
+  --csnt-border: #2b3038;
+  --csnt-accent: #f3f4f6;
+  --csnt-accent-fg: #16181d;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root:not([data-consent-theme="light"]) {
+  :root[data-consent-theme="auto"] {
     --csnt-bg: #16181d;
     --csnt-fg: #f3f4f6;
     --csnt-muted: #a2acbb;
