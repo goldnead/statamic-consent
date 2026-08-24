@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.1.0
+
+### What's new
+
+- **Google Consent Mode v2**, off by default. Map each of Google's four signals to the services
+  behind it; the `consent default` call is written inline and first, the update follows the
+  visitor's decision.
+- **Browser tests** for the three behaviours the PHP suite cannot reach: the localStorage mirror,
+  Global Privacy Control and parked scripts. `npm test`.
+
+### What's fixed
+
+- Closing the settings panel with **Escape** without deciding left the visitor with no banner and no
+  decision. Every way out now behaves the same.
+- The CI matrix tested a Laravel 11 leg that Statamic 6 can never satisfy, and `orchestra/testbench`
+  was pinned to Laravel 12 only, so the Laravel 13 leg could not resolve either.
+
 ## 1.0.0
 
 ### What's new
