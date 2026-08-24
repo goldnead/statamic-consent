@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.1
+
+### What's fixed
+
+- `php please consent:install` died with "mkdir(): Permission denied" on a containerised Statamic,
+  where the application directory belongs to root while the process runs as www-data. Publishing the
+  blueprint is a convenience; the global set is the job. It now warns, says where to copy the file
+  from, and carries on.
+- The install command had no test at all. It has three now, including the unwritable case.
+
 ## 1.2.0
 
 ### What's new

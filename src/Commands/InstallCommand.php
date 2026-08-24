@@ -29,10 +29,7 @@ class InstallCommand extends Command
             '--force' => true,
         ]);
 
-        $this->call('vendor:publish', [
-            '--tag' => 'statamic-consent-blueprint',
-            '--force' => (bool) $this->option('force'),
-        ]);
+        $this->publishBlueprint();
 
         $this->createGlobalSet();
 
@@ -42,6 +39,30 @@ class InstallCommand extends Command
         $this->line('  <comment>{{ consent:banner }}</comment> right before </body>.');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Publishing the blueprint is a convenience, not the job.
+     *
+     * On a containerised Statamic the application directory belongs to root
+     * while the process runs as www-data, so this throws — and a fatal here
+     * would abandon the global set, which is the part that actually matters and
+     * writes somewhere else entirely. Sites that keep the blueprint in their
+     * repository are in exactly this position and are not doing anything wrong.
+     */
+    protected function publishBlueprint(): void
+    {
+        try {
+            $this->call('vendor:publish', [
+                '--tag' => 'statamic-consent-blueprint',
+                '--force' => (bool) $this->option('force'),
+            ]);
+        } catch (\Throwable $e) {
+            $this->newLine();
+            $this->components->warn('Could not write resources/blueprints/globals/consent.yaml: '.$e->getMessage());
+            $this->line('  Copy it from <comment>vendor/goldnead/statamic-consent/resources/blueprints/globals/consent.yaml</comment>');
+            $this->line('  and commit it, or re-run this command where the directory is writable.');
+        }
     }
 
     protected function createGlobalSet(): void
