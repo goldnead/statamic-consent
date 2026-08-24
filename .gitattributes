@@ -20,3 +20,7 @@
 
 # Keep: /dist (the built bundle consumers actually load), /config, /lang,
 # /resources/views, /routes, /src, README.md, CHANGELOG.md, LICENSE.md.
+
+# The browser test harness. /tests is already ignored above.
+/package.json       export-ignore
+/package-lock.json  export-ignore

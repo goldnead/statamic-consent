@@ -1,0 +1,11 @@
+{
+  "name": "statamic-consent",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/browser/run.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.49.0"
+  }
+}

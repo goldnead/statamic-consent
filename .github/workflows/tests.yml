@@ -100,30 +100,28 @@ jobs:
       - name: Run addon-lint
         run: php studio/tools/addon-lint/bin/addon-lint addon --no-color --fail-on=major -v
 
-  assets:
+  browser:
     runs-on: ubuntu-latest
-    name: Built assets are current
-    # Delete this job if the addon fetches dist/ from the release
-    # via extra.download-dist instead of committing it.
+    name: Browser behaviour
+
+    # There is no build step to check: consent.js and consent.css are shipped as
+    # written, which is why the template's "Built assets are current" job is gone
+    # rather than adapted. What needs proving instead is the runtime behaviour
+    # the PHP suite cannot reach — the localStorage mirror, Global Privacy
+    # Control, and parked scripts.
 
     steps:
       - uses: actions/checkout@v4
-
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          coverage: none
 
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
 
-      # @statamic/cms resolves from vendor/, so Composer must run first.
-      - run: composer install --prefer-dist --no-interaction
+      - run: npm install --no-audit --no-fund
 
-      - run: npm ci --ignore-scripts
-
-      - run: npm run build
-
-      - name: Fail if the committed bundle is stale
-        run: git diff --exit-code -- dist
+      # playwright-core drives a browser but ships none. The runner already has
+      # Chrome, so nothing is downloaded.
+      - name: Run the browser checks
+        run: npm test
+        env:
+          CHROME_PATH: /usr/bin/google-chrome

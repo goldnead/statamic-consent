@@ -207,6 +207,13 @@ It is not a legal opinion, and it does not discover what your site loads. Every 
 entered as a service, and an embed only gets blocked where a gate is put around it. It does not scan
 your theme to check that you did.
 
+## Tests
+
+`composer test` runs the PHP suite. `npm test` runs the browser checks — the localStorage mirror,
+Global Privacy Control and parked scripts live only in the browser, so they are exercised against a
+fixture page rather than left to a reading of the source. It needs a Chrome on the machine
+(`CHROME_PATH` if it is not at `/usr/bin/google-chrome`); no browser is downloaded.
+
 ## Support
 
 Only the latest version is supported. Issues:

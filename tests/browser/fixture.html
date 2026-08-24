@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>consent.js fixture</title>
+<!--
+  A hand-written page rather than one rendered by Statamic. These three
+  behaviours live entirely in consent.js, so the test exercises the file that
+  actually ships instead of standing a CMS up around it. The markup carries only
+  the hooks the script looks for.
+-->
+<script id="statamic-consent-config" type="application/json">
+{
+  "version": 1,
+  "cookie": { "name": "statamic_consent", "days": 182, "sameSite": "Lax", "secure": false },
+  "rejectOnDismiss": true,
+  "respectGpc": true,
+  "required": ["session"],
+  "categories": [
+    {
+      "handle": "external_media",
+      "name": "External media",
+      "services": [
+        { "handle": "youtube", "name": "YouTube", "required": false, "block_content": true }
+      ]
+    },
+    {
+      "handle": "analytics",
+      "name": "Analytics",
+      "services": [
+        { "handle": "analytics_pixel", "name": "Pixel", "required": false, "block_content": false }
+      ]
+    }
+  ],
+  "texts": {},
+  "links": {}
+}
+</script>
+</head>
+<body>
+
+<div class="csnt-gate" data-consent-gate="youtube">
+  <template data-consent-embed><iframe src="./embed.html" title="embed"></iframe></template>
+  <div class="csnt-gate__placeholder">
+    <button type="button" data-consent-allow="youtube">Load</button>
+  </div>
+</div>
+
+<script type="text/plain" data-consent-service="analytics_pixel">
+  window.__pixelRan = true;
+</script>
+
+<div class="csnt" data-consent-root hidden>
+  <div class="csnt-banner" data-consent-banner hidden>
+    <button type="button" data-consent-necessary>Essential only</button>
+    <button type="button" data-consent-accept-all>Accept all</button>
+    <button type="button" data-consent-open>Settings</button>
+  </div>
+  <div class="csnt-panel" data-consent-modal hidden>
+    <label><input type="checkbox" data-consent-service="youtube"> YouTube</label>
+    <label><input type="checkbox" data-consent-service="analytics_pixel"> Pixel</label>
+    <button type="button" data-consent-save>Save</button>
+    <button type="button" data-consent-reject-all>Reject all</button>
+    <button type="button" data-consent-close>Close</button>
+  </div>
+</div>
+
+<script src="../../resources/dist/consent.js"></script>
+</body>
+</html>

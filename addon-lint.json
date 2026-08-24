@@ -1,0 +1,18 @@
+{
+  "_why": [
+    "ui.statamic-cms-package expects a package.json to mean a Control Panel Vite build, and asks for",
+    "@statamic/cms in devDependencies so the UI kit is pinned to the Statamic version in vendor/.",
+    "",
+    "This addon adds no Control Panel surface at all. Its only CP presence is a global set, which is",
+    "core's own screen behind a published blueprint, and it imports nothing from @statamic/cms/ui.",
+    "The package.json here exists for one reason: playwright-core, which drives the browser checks",
+    "for the three behaviours that live only in the browser (the localStorage mirror, Global Privacy",
+    "Control, parked scripts). Adding the dependency would pull a UI kit nothing imports.",
+    "",
+    "Revisit this the day the addon grows a real CP screen — then the rule is right and this entry",
+    "is wrong."
+  ],
+  "disable": [
+    "ui.statamic-cms-package"
+  ]
+}
