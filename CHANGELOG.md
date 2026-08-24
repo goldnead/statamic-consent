@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.1
+
+### What's fixed
+
+- **`{{ consent:granted }}` never worked.** The cookie is written by JavaScript and is therefore not
+  encrypted; Laravel's `EncryptCookies` middleware discarded it, so the server saw no cookie at all.
+  The failure looked exactly like "nobody has consented yet", which is why it survived a green
+  suite, a playground and a production install. The cookie is now registered with
+  `EncryptCookies::except()`, and the exemption follows a renamed cookie.
+
 ## 1.3.0
 
 Both of these came out of the first real installation, on a site that loads no third party at all.

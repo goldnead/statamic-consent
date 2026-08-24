@@ -92,6 +92,11 @@ the existing node would do nothing; the browser decided how to treat it at parse
 `{{ consent:granted }}` reads the cookie on the server, so it is wrong on a page served from a
 full-page cache. Use the gate for anything that loads a third party; use `granted` for prose.
 
+The cookie is written by JavaScript and is therefore not encrypted, so the addon registers it with
+`EncryptCookies::except()` on boot. Without that Laravel discards it and the server sees no cookie
+at all — which looks exactly like "nobody has consented yet". If you rename the cookie in a
+published config, the exemption follows the new name.
+
 ![The settings panel](docs/dialog.png)
 
 ## Configuration

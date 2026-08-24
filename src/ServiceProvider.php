@@ -3,6 +3,7 @@
 namespace Goldnead\StatamicConsent;
 
 use Goldnead\StatamicConsent\Support\Registry;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Statamic\Providers\AddonServiceProvider;
 
 class ServiceProvider extends AddonServiceProvider
@@ -31,6 +32,15 @@ class ServiceProvider extends AddonServiceProvider
     public function bootAddon()
     {
         $this->loadTranslationsFrom(__DIR__.'/../lang', 'statamic-consent');
+
+        // The consent cookie is written by JavaScript and is therefore not
+        // encrypted. Laravel's EncryptCookies middleware discards anything it
+        // cannot decrypt, so without this the server sees no cookie at all and
+        // {{ consent:granted }} is false for everyone, forever — a failure that
+        // looks exactly like "nobody has consented yet".
+        EncryptCookies::except([
+            (string) config('statamic-consent.cookie.name', 'statamic_consent'),
+        ]);
 
         $this->publishes([
             __DIR__.'/../config/statamic-consent.php' => config_path('statamic-consent.php'),
