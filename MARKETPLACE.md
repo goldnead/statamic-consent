@@ -2,7 +2,7 @@
 
 ## Price
 
-**$20, one edition.** Decided by Adrian on 2026-08-24.
+**$39, one edition.** Decided by Adrian on 2026-08-24.
 
 Not a suggestion and not a range: this addon is one product. There is no Core/Pro split, so
 `extra.statamic.editions` stays absent from `composer.json` — the field only earns its place when a
@@ -14,15 +14,20 @@ From the comparison of 2026-08-24 (`TASKS/statamic-consent-marktvergleich-2026-0
 
 | Addon | Price | Blocks embeds | Wording in the control panel |
 |---|---|---|---|
-| **Statamic Consent** | **$20** | yes, via `<template>` | **yes** |
+| **Statamic Consent** | **$39** | yes, via `<template>` | **yes** |
 | Consent Manager (kiwikiwi) | $49 | yes, placeholder | no — language files |
 | Cookie Notice (duncanmcclean) | $49 | no, an example to build yourself | no |
 | Cookie Byte (dryven) | $19 | covers only, **no Statamic 6** | yes |
 | Cookie Dialog (emplify) | free / $20 | not documented | yes |
 
-**$20 is under half of both $49 competitors**, and this is the only addon at any price that both
-keeps an embed out of the document *and* lets the site owner edit the wording without touching a
-language file.
+**$39 undercuts both $49 competitors while staying a serious price**, which is the point: this is
+the only addon at any price that both keeps an embed out of the document *and* lets the site owner
+edit the wording without touching a language file. Pricing it at the bottom of the field would have
+said the opposite about what it does.
+
+It is not the cheapest, and should not be. Cookie Byte is $19 and cannot run on Statamic 6; Cookie
+Dialog's Pro tier is $20 and does not document blocking at all. Being $20 next to those invites the
+comparison they would win — on price, the only axis where they can.
 
 The one thing the $49 leader has and this does not is a scanner that finds services for you. Google
 Consent Mode v2 is no longer a difference — it shipped in 1.1.0.

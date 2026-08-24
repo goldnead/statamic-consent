@@ -13,7 +13,7 @@
     "is wrong.",
     "",
     "release.editions is an INFO, not a rule, and it asks a question rather than reporting a fault:",
-    "\"Confirm this is a single-edition commercial addon.\" Confirmed on 2026-08-24 — $20, one",
+    "\"Confirm this is a single-edition commercial addon.\" Confirmed on 2026-08-24 — $39, one",
     "product, no Core/Pro split. See MARKETPLACE.md. The field stays absent because the linter is",
     "right that a declared edition without a feature behind it cannot gate anything."
   ],
