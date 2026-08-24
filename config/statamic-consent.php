@@ -122,26 +122,21 @@ return [
     */
 
     'services' => [
-        [
-            'handle' => 'youtube',
-            'name' => 'YouTube',
-            'category' => 'external_media',
-            'policy_url' => 'https://policies.google.com/privacy',
-            'block_content' => true,
-        ],
-        [
-            'handle' => 'vimeo',
-            'name' => 'Vimeo',
-            'category' => 'external_media',
-            'policy_url' => 'https://vimeo.com/privacy',
-            'block_content' => true,
-        ],
-        [
-            'handle' => 'google_maps',
-            'name' => 'Google Maps',
-            'category' => 'external_media',
-            'policy_url' => 'https://policies.google.com/privacy',
-            'block_content' => true,
-        ],
+        // Empty on purpose. A service listed here appears in the banner, and a
+        // banner that offers YouTube on a site with no YouTube describes data
+        // processing that does not happen. Add what this site actually loads —
+        // here, or in the control panel under Globals → Consent.
+        //
+        // The shape, for the three most common:
+        //
+        //   ['handle' => 'youtube',     'name' => 'YouTube',     'category' => 'external_media',
+        //    'policy_url' => 'https://policies.google.com/privacy', 'block_content' => true],
+        //   ['handle' => 'vimeo',       'name' => 'Vimeo',       'category' => 'external_media',
+        //    'policy_url' => 'https://vimeo.com/privacy',           'block_content' => true],
+        //   ['handle' => 'google_maps', 'name' => 'Google Maps', 'category' => 'external_media',
+        //    'policy_url' => 'https://policies.google.com/privacy', 'block_content' => true],
+        //
+        // With nothing here the addon renders nothing at all: no banner, no
+        // stylesheet, no script. The site is untouched until you add one.
     ],
 ];

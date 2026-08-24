@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.3.0
+
+Both of these came out of the first real installation, on a site that loads no third party at all.
+
+### What's new
+
+- **No services ship.** A service listed by default appears in the banner of every fresh install,
+  describing data processing that site may not do. Add the ones your site actually loads; the config
+  file carries the three most common as commented examples.
+
+### What's fixed
+
+- **A list emptied in the control panel stayed empty no longer than a page load.** Deleting every
+  service fell back to the shipped list, so a client who removed them got them back — along with a
+  banner asking about services their site does not load. An emptied list is an answer, not a missing
+  value.
+
 ## 1.2.1
 
 ### What's fixed

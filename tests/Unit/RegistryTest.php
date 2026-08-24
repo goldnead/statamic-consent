@@ -6,6 +6,8 @@ use Goldnead\StatamicConsent\Support\Registry;
 use Goldnead\StatamicConsent\Tests\TestCase;
 use Illuminate\Http\Request;
 use PHPUnit\Framework\Attributes\Test;
+use Statamic\Facades\GlobalSet;
+use Statamic\Facades\Site;
 
 class RegistryTest extends TestCase
 {
@@ -15,12 +17,43 @@ class RegistryTest extends TestCase
     }
 
     #[Test]
+    public function it_ships_no_services_at_all(): void
+    {
+        // A service listed by default appears in the banner of every fresh
+        // install, describing data processing that site may not do.
+        $this->assertSame([], $this->registry()->services());
+    }
+
+    #[Test]
     public function it_reads_services_from_the_config_file(): void
     {
+        config(['statamic-consent.services' => [
+            ['handle' => 'youtube', 'name' => 'YouTube', 'category' => 'external_media'],
+            ['handle' => 'google_maps', 'name' => 'Google Maps', 'category' => 'external_media'],
+        ]]);
+
         $handles = collect($this->registry()->services())->pluck('handle')->all();
 
         $this->assertContains('youtube', $handles);
         $this->assertContains('google_maps', $handles);
+    }
+
+    #[Test]
+    public function a_list_emptied_in_the_control_panel_stays_empty(): void
+    {
+        config(['statamic-consent.services' => [
+            ['handle' => 'youtube', 'name' => 'YouTube', 'category' => 'external_media'],
+        ]]);
+
+        $set = GlobalSet::make('consent')->title('Consent');
+        $set->save();
+        $variables = $set->makeLocalization(Site::default()->handle());
+        // The client deleted every row. That is an answer, not a missing value —
+        // falling back to the config here would hand them back what they removed.
+        $variables->data(['services' => []]);
+        $variables->save();
+
+        $this->assertSame([], (new Registry)->services());
     }
 
     #[Test]

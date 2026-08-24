@@ -25,8 +25,12 @@ php please consent:install
 (Under `php artisan` the same command is `statamic:consent:install`; `please` drops the prefix.)
 
 The install command publishes the assets to `public/vendor/statamic-consent`, publishes the
-blueprint to `resources/blueprints/globals/consent.yaml`, and creates the **Consent** global set,
-seeded from the config file. It then appears in the control panel under **Globals → Consent**.
+blueprint to `resources/blueprints/globals/consent.yaml`, and creates the **Consent** global set. It
+then appears in the control panel under **Globals → Consent**.
+
+**Nothing renders until you add a service.** No services ship, so a fresh install leaves the site
+exactly as it was — see "When there is nothing to ask" below. Add the ones this site actually loads,
+in the control panel or in the config file.
 
 **Re-run `php please consent:install` after every update.** The assets are overwritten on purpose: a
 half-updated pair of `consent.js` and `consent.css` behaves like the previous release.
@@ -96,6 +100,9 @@ full-page cache. Use the gate for anything that loads a third party; use `grante
 set owns the wording and overrides the config key by key — a field left empty falls back to the
 shipped text in the visitor's language rather than rendering blank.
 
+A **list** emptied in the control panel stays empty. Deleting every service is an answer, not a
+missing value, and the addon does not hand back what someone removed.
+
 | Key | Default | What happens when it is wrong |
 |---|---|---|
 | `cookie.name` | `statamic_consent` | Renaming it after launch discards every stored decision; every visitor is asked again. |
@@ -107,7 +114,7 @@ shipped text in the visitor's language rather than rendering blank.
 | `assets.styles` | `true` | Off means you ship your own CSS against the class names below. |
 | `assets.scripts` | `true` | Off disables the addon entirely; nothing unlocks. |
 | `categories` | four | A category with no services is dropped from the dialog. |
-| `services` | three | The `handle` is what templates refer to. Renaming one after launch breaks every gate that names it. |
+| `services` | **none** | Nothing ships. A service listed here appears in the banner, so an unused one describes data processing that does not happen. The `handle` is what templates refer to; renaming one after launch breaks every gate that names it. |
 
 ### Google Consent Mode v2
 

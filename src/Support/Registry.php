@@ -281,10 +281,14 @@ class Registry
      */
     protected function raw(string $key): array
     {
-        $fromGlobals = $this->globals()[$key] ?? null;
+        $globals = $this->globals();
 
-        $source = is_array($fromGlobals) && $fromGlobals !== []
-            ? $fromGlobals
+        // A key the site has touched wins, including when what it says is
+        // "none". Treating an emptied list as "unset" means a client who deletes
+        // every service gets the shipped ones back — and then a banner asking
+        // about services their site does not load.
+        $source = array_key_exists($key, $globals) && is_array($globals[$key])
+            ? $globals[$key]
             : config('statamic-consent.'.$key, []);
 
         return collect($source)

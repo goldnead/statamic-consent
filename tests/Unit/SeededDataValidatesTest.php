@@ -18,6 +18,26 @@ use Symfony\Component\Yaml\Yaml;
 class SeededDataValidatesTest extends TestCase
 {
     /**
+     * The shipped config carries no services, so looping over it would assert
+     * nothing and pass forever. What still needs guarding is the shape: a row a
+     * site writes, following the documented example, must satisfy the blueprint.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config(['statamic-consent.services' => [
+            [
+                'handle' => 'youtube',
+                'name' => 'YouTube',
+                'category' => 'external_media',
+                'policy_url' => 'https://policies.google.com/privacy',
+                'block_content' => true,
+            ],
+        ]]);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     protected function blueprint(): array
@@ -37,6 +57,15 @@ class SeededDataValidatesTest extends TestCase
             ->pluck('handle')
             ->values()
             ->all();
+    }
+
+    #[Test]
+    public function the_fixture_is_not_empty(): void
+    {
+        // Guards the guard: if the config ever ships empty and a future edit
+        // drops the setUp fixture, the two loops below would assert nothing.
+        $this->assertNotEmpty(config('statamic-consent.services'));
+        $this->assertNotEmpty(config('statamic-consent.categories'));
     }
 
     #[Test]

@@ -13,18 +13,31 @@ class InstallCommandTest extends TestCase
     #[Test]
     public function it_creates_the_global_set_seeded_from_the_config(): void
     {
+        config(['statamic-consent.services' => [
+            ['handle' => 'youtube', 'name' => 'YouTube', 'category' => 'external_media'],
+        ]]);
+
         $this->assertNull(GlobalSet::findByHandle('consent'));
 
         Artisan::call('statamic:consent:install');
 
-        $set = GlobalSet::findByHandle('consent');
-        $this->assertNotNull($set);
+        $data = GlobalSet::findByHandle('consent')->inDefaultSite()->data()->all();
 
-        $data = $set->inDefaultSite()->data()->all();
-        $handles = collect($data['services'])->pluck('handle')->all();
+        $this->assertSame(['youtube'], collect($data['services'])->pluck('handle')->all());
+    }
 
-        $this->assertContains('youtube', $handles);
-        $this->assertContains('google_maps', $handles);
+    #[Test]
+    public function a_default_install_seeds_categories_but_no_services(): void
+    {
+        Artisan::call('statamic:consent:install');
+
+        $data = GlobalSet::findByHandle('consent')->inDefaultSite()->data()->all();
+
+        // The control panel opens with the groups in place and nothing in them,
+        // which is the honest starting point: the site owner says what this site
+        // loads. Until then nothing renders.
+        $this->assertSame([], $data['services']);
+        $this->assertCount(4, $data['categories']);
     }
 
     #[Test]
