@@ -1,207 +1,60 @@
 /**
  * Statamic Consent — default styling.
  *
- * Everything is driven by custom properties so a theme can restyle the banner
- * by setting five variables instead of overriding thirty rules. Set
- * `assets.styles` to false in the config to drop this file entirely; the class
- * names are the documented contract either way.
+ * The shape is the one adriangoldner.com established and that its visitors
+ * already know: a card in the bottom-left corner rather than a bar across the
+ * page, a settings panel in the opposite corner rather than a modal over the
+ * content, pill buttons in a spaced uppercase mono, and generous corner radii.
+ *
+ * Everything is a custom property, so a theme restyles it by setting tokens
+ * instead of overriding rules. Set `assets.styles` to false in the config to
+ * drop this file entirely; the class names are the documented contract either
+ * way.
+ *
+ * No font is loaded here. The banner inherits the site's own faces, which is
+ * why it looks like part of the page rather than a widget dropped onto it.
  */
+
 /* A display rule beats the browser's own [hidden] { display: none }, so every
-   element this addon hides needs to say so itself. Without this the dialog is
-   open on first paint, which is how the banner ends up behind its own modal. */
+   element this addon hides needs to say so itself. Without this the panel is
+   open on first paint, in front of its own banner. */
 .csnt[hidden],
 .csnt-banner[hidden],
-.csnt-modal[hidden],
-.csnt-gate__placeholder[hidden] {
+.csnt-panel[hidden] {
   display: none !important;
 }
 
 :root {
-  --csnt-bg: #ffffff;
-  --csnt-fg: #16181d;
-  --csnt-muted: #5b6472;
-  --csnt-border: #e2e5ea;
-  --csnt-accent: #16181d;
-  --csnt-accent-fg: #ffffff;
-  --csnt-radius: 12px;
-  --csnt-shadow: 0 12px 40px -12px rgba(16, 18, 22, 0.35);
+  /* Ground and ink */
+  --csnt-surface: #FFFFFF;
+  --csnt-surface-sunken: #FAF8F4;
+  --csnt-surface-muted: #F3F0EA;
+  --csnt-surface-muted-line: #EAE6DE;
+  --csnt-ink: #141210;
+  --csnt-ink-soft: #44403C;
+  --csnt-muted: #78716C;
+  --csnt-faint: #A8A29E;
+  --csnt-line: rgba(20, 18, 16, 0.10);
+
+  /* The one accent. Everything else is neutral. */
+  --csnt-brand: #E8B931;
+  --csnt-brand-hover: #F5D04A;
+  --csnt-brand-ink: #141210;
+  --csnt-brand-deep: #A67D14;
+
+  /* Form */
+  --csnt-radius-card: 2.5rem;
+  --csnt-radius-panel: 1.5rem;
+  --csnt-radius-inner: 0.75rem;
+  --csnt-shadow-card: 0 32px 64px -24px rgba(20, 18, 16, 0.14);
+  --csnt-shadow-panel: 0 32px 64px -24px rgba(20, 18, 16, 0.18);
+
+  /* Type. Inherited from the site unless the theme points these elsewhere. */
+  --csnt-font: inherit;
+  --csnt-font-display: inherit;
+  --csnt-font-ui: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
   --csnt-z: 2147483000;
-}
-
-.csnt-locked { overflow: hidden; }
-
-.csnt-banner {
-  position: fixed;
-  inset: auto 0 0 0;
-  z-index: var(--csnt-z);
-  padding: 1rem;
-  background: var(--csnt-bg);
-  color: var(--csnt-fg);
-  border-top: 1px solid var(--csnt-border);
-  box-shadow: var(--csnt-shadow);
-  font-size: 0.9375rem;
-  line-height: 1.5;
-}
-
-.csnt-banner__inner {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem 1.5rem;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 72rem;
-  margin: 0 auto;
-}
-
-.csnt-banner__text { flex: 1 1 22rem; }
-.csnt-banner__title { margin: 0 0 0.25rem; font-size: 1rem; font-weight: 600; }
-.csnt-banner__description { margin: 0; color: var(--csnt-muted); }
-.csnt-banner__links { margin: 0.5rem 0 0; display: flex; gap: 1rem; font-size: 0.8125rem; }
-.csnt-banner__links a { color: var(--csnt-muted); }
-
-.csnt-banner__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.csnt-btn {
-  appearance: none;
-  border: 1px solid transparent;
-  border-radius: calc(var(--csnt-radius) - 4px);
-  padding: 0.625rem 1rem;
-  font: inherit;
-  font-size: 0.875rem;
-  font-weight: 500;
-  line-height: 1.2;
-  cursor: pointer;
-  background: transparent;
-  color: inherit;
-}
-
-.csnt-btn:focus-visible { outline: 2px solid var(--csnt-accent); outline-offset: 2px; }
-.csnt-btn--primary { background: var(--csnt-accent); color: var(--csnt-accent-fg); }
-.csnt-btn--secondary { border-color: var(--csnt-border); background: var(--csnt-bg); }
-.csnt-btn--ghost { color: var(--csnt-muted); text-decoration: underline; padding-inline: 0.25rem; }
-
-/* Every path out of the banner is one click and looks like the others. A
-   "reject" hidden two levels deep is the dark pattern regulators name first. */
-.csnt-banner__actions .csnt-btn--secondary,
-.csnt-banner__actions .csnt-btn--primary { min-width: 9rem; justify-content: center; }
-
-.csnt-modal {
-  position: fixed;
-  inset: 0;
-  z-index: calc(var(--csnt-z) + 1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.csnt-modal__backdrop { position: absolute; inset: 0; background: rgba(16, 18, 22, 0.55); }
-
-.csnt-modal__panel {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  width: min(38rem, 100%);
-  max-height: min(85vh, 46rem);
-  background: var(--csnt-bg);
-  color: var(--csnt-fg);
-  border-radius: var(--csnt-radius);
-  box-shadow: var(--csnt-shadow);
-  overflow: hidden;
-}
-
-.csnt-modal__header,
-.csnt-modal__footer {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem 1.25rem;
-}
-
-.csnt-modal__header { justify-content: space-between; border-bottom: 1px solid var(--csnt-border); }
-.csnt-modal__footer { flex-wrap: wrap; justify-content: flex-end; border-top: 1px solid var(--csnt-border); }
-.csnt-modal__title { margin: 0; font-size: 1.0625rem; font-weight: 600; }
-.csnt-modal__close { appearance: none; border: 0; background: none; font-size: 1.5rem; line-height: 1; cursor: pointer; color: var(--csnt-muted); }
-.csnt-modal__body { padding: 1.25rem; overflow-y: auto; }
-.csnt-modal__description { margin: 0 0 1.25rem; color: var(--csnt-muted); font-size: 0.9375rem; }
-
-.csnt-category + .csnt-category { margin-top: 1.5rem; }
-.csnt-category__title { margin: 0 0 0.25rem; font-size: 0.9375rem; font-weight: 600; }
-.csnt-category__description { margin: 0 0 0.75rem; color: var(--csnt-muted); font-size: 0.8125rem; }
-
-.csnt-service {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 0.75rem 0;
-  border-top: 1px solid var(--csnt-border);
-}
-
-.csnt-service__text { display: flex; flex-direction: column; gap: 0.125rem; }
-.csnt-service__name { font-size: 0.9375rem; font-weight: 500; }
-.csnt-service__description,
-.csnt-service__policy { font-size: 0.8125rem; color: var(--csnt-muted); }
-.csnt-service__always { font-size: 0.8125rem; color: var(--csnt-muted); white-space: nowrap; }
-
-.csnt-switch { position: relative; display: inline-flex; align-items: center; cursor: pointer; flex: none; }
-.csnt-switch__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-.csnt-switch input { position: absolute; opacity: 0; width: 2.75rem; height: 1.5rem; margin: 0; cursor: pointer; }
-.csnt-switch__track {
-  width: 2.75rem;
-  height: 1.5rem;
-  border-radius: 999px;
-  background: var(--csnt-border);
-  transition: background 0.15s ease;
-}
-.csnt-switch__track::after {
-  content: "";
-  display: block;
-  width: 1.125rem;
-  height: 1.125rem;
-  margin: 0.1875rem;
-  border-radius: 999px;
-  background: var(--csnt-bg);
-  transition: transform 0.15s ease;
-}
-.csnt-switch input:checked + .csnt-switch__track { background: var(--csnt-accent); }
-.csnt-switch input:checked + .csnt-switch__track::after { transform: translateX(1.25rem); }
-.csnt-switch input:focus-visible + .csnt-switch__track { outline: 2px solid var(--csnt-accent); outline-offset: 2px; }
-
-.csnt-gate { position: relative; }
-
-.csnt-gate__placeholder {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 16rem;
-  height: 100%;
-  overflow: hidden;
-  border: 1px solid var(--csnt-border);
-  border-radius: var(--csnt-radius);
-  background: color-mix(in srgb, var(--csnt-fg) 4%, var(--csnt-bg));
-  text-align: center;
-}
-
-.csnt-gate__cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(6px) saturate(0.6); opacity: 0.5; }
-.csnt-gate__body { position: relative; display: flex; flex-direction: column; gap: 0.5rem; align-items: center; max-width: 26rem; padding: 1.5rem; }
-.csnt-gate__title { margin: 0; font-size: 1rem; font-weight: 600; }
-.csnt-gate__message { margin: 0; color: var(--csnt-muted); font-size: 0.875rem; }
-.csnt-gate__policy { font-size: 0.8125rem; color: var(--csnt-muted); }
-.csnt-gate__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.5rem; }
-
-.csnt-settings-link { appearance: none; border: 0; background: none; padding: 0; font: inherit; color: inherit; text-decoration: underline; cursor: pointer; }
-
-@media (max-width: 40rem) {
-  .csnt-banner__actions { width: 100%; }
-  .csnt-banner__actions .csnt-btn--secondary,
-  .csnt-banner__actions .csnt-btn--primary { flex: 1 1 auto; }
 }
 
 /* Dark mode is opt-in, never automatic.
@@ -213,29 +66,417 @@
  *   <html data-consent-theme="dark">   always dark
  *   <html data-consent-theme="auto">   follow the operating system
  *
- * and a theme that already has its own switch simply overrides the custom
- * properties instead. */
+ * and a theme that already has its own switch simply overrides the tokens. */
 :root[data-consent-theme="dark"] {
-  --csnt-bg: #16181d;
-  --csnt-fg: #f3f4f6;
-  --csnt-muted: #a2acbb;
-  --csnt-border: #2b3038;
-  --csnt-accent: #f3f4f6;
-  --csnt-accent-fg: #16181d;
+  --csnt-surface: #1E1C19;
+  --csnt-surface-sunken: #141210;
+  --csnt-surface-muted: #2E2B27;
+  --csnt-surface-muted-line: #44403C;
+  --csnt-ink: #FAF8F4;
+  --csnt-ink-soft: #DDD8CF;
+  --csnt-muted: #A8A29E;
+  --csnt-faint: #78716C;
+  --csnt-line: rgba(250, 248, 244, 0.12);
+  --csnt-shadow-card: 0 32px 64px -24px rgba(0, 0, 0, 0.55);
+  --csnt-shadow-panel: 0 32px 64px -24px rgba(0, 0, 0, 0.6);
 }
 
 @media (prefers-color-scheme: dark) {
   :root[data-consent-theme="auto"] {
-    --csnt-bg: #16181d;
-    --csnt-fg: #f3f4f6;
-    --csnt-muted: #a2acbb;
-    --csnt-border: #2b3038;
-    --csnt-accent: #f3f4f6;
-    --csnt-accent-fg: #16181d;
+    --csnt-surface: #1E1C19;
+    --csnt-surface-sunken: #141210;
+    --csnt-surface-muted: #2E2B27;
+    --csnt-surface-muted-line: #44403C;
+    --csnt-ink: #FAF8F4;
+    --csnt-ink-soft: #DDD8CF;
+    --csnt-muted: #A8A29E;
+    --csnt-faint: #78716C;
+    --csnt-line: rgba(250, 248, 244, 0.12);
+    --csnt-shadow-card: 0 32px 64px -24px rgba(0, 0, 0, 0.55);
+    --csnt-shadow-panel: 0 32px 64px -24px rgba(0, 0, 0, 0.6);
   }
 }
 
+.csnt,
+.csnt-banner,
+.csnt-panel {
+  font-family: var(--csnt-font);
+  color: var(--csnt-ink);
+}
+
+.csnt *,
+.csnt-banner *,
+.csnt-panel * { box-sizing: border-box; }
+
+/* ------------------------------------------------------------------ banner */
+
+.csnt-banner {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  z-index: var(--csnt-z);
+  width: calc(100% - 3rem);
+  max-width: 26.25rem;
+}
+
+.csnt-banner__card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  border: 1px solid var(--csnt-line);
+  border-radius: var(--csnt-radius-card);
+  background: var(--csnt-surface);
+  box-shadow: var(--csnt-shadow-card);
+}
+
+.csnt-banner__title {
+  font-family: var(--csnt-font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--csnt-ink);
+}
+
+.csnt-banner__description {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--csnt-muted);
+  white-space: pre-line;
+}
+
+.csnt-banner__foot {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.csnt-banner__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.csnt-banner__links {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  padding: 0 0.5rem;
+}
+
+/* ----------------------------------------------------------------- buttons */
+
+.csnt-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-family: var(--csnt-font-ui);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color .5s cubic-bezier(.76,0,.24,1), border-color .5s cubic-bezier(.76,0,.24,1);
+}
+
+.csnt-btn:focus-visible,
+.csnt-caption:focus-visible,
+.csnt-pill:focus-visible,
+.csnt-panel__close:focus-visible {
+  outline: 2px solid var(--csnt-brand);
+  outline-offset: 2px;
+}
+
+/* Both ways out of the banner are the same size, the same shape and the same
+   distance from the reader's hand. A rejection hidden behind a link is the dark
+   pattern regulators name first. */
+.csnt-btn--primary {
+  background: var(--csnt-brand);
+  border-color: color-mix(in srgb, var(--csnt-brand) 30%, transparent);
+  color: var(--csnt-brand-ink);
+}
+
+.csnt-btn--primary:hover { background: var(--csnt-brand-hover); border-color: var(--csnt-brand-hover); }
+
+.csnt-btn--secondary {
+  background: var(--csnt-surface-muted);
+  border-color: var(--csnt-surface-muted-line);
+  color: var(--csnt-ink);
+}
+
+.csnt-btn--secondary:hover { background: var(--csnt-brand); border-color: var(--csnt-brand); }
+
+@media (min-width: 30rem) {
+  .csnt-banner__actions { flex-direction: row; }
+}
+
+/* ---------------------------------------------------------------- captions */
+
+.csnt-caption,
+.csnt-settings-link {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  font-family: var(--csnt-font-ui);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--csnt-muted);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color .2s ease;
+}
+
+.csnt-caption:hover,
+.csnt-settings-link:hover { color: var(--csnt-brand-deep); }
+
+.csnt-settings-link { text-transform: none; letter-spacing: normal; font-family: inherit; font-size: inherit; text-decoration: underline; }
+
+/* ------------------------------------------------------------------- panel */
+
+.csnt-panel {
+  position: fixed;
+  bottom: 5rem;
+  right: 1.5rem;
+  z-index: calc(var(--csnt-z) + 1);
+  display: flex;
+  flex-direction: column;
+  width: 23.75rem;
+  max-width: calc(100% - 3rem);
+  max-height: calc(100vh - 7.5rem);
+  overflow: hidden;
+  border: 1px solid var(--csnt-line);
+  border-radius: var(--csnt-radius-panel);
+  background: var(--csnt-surface);
+  box-shadow: var(--csnt-shadow-panel);
+}
+
+.csnt-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--csnt-line);
+}
+
+.csnt-panel__title {
+  font-family: var(--csnt-font-display);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.csnt-panel__close {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: none;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--csnt-muted);
+  cursor: pointer;
+  transition: background-color .2s ease, color .2s ease;
+}
+
+.csnt-panel__close:hover { background: var(--csnt-surface-muted); color: var(--csnt-ink); }
+
+.csnt-panel__body {
+  overflow-y: auto;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.csnt-panel__description {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--csnt-muted);
+}
+
+.csnt-category { display: flex; flex-direction: column; gap: 0.25rem; }
+.csnt-category__title { margin: 0; font-size: 0.875rem; font-weight: 700; color: var(--csnt-ink); }
+.csnt-category__description { margin: 0; font-size: 0.75rem; line-height: 1.5; color: var(--csnt-muted); }
+.csnt-category__services { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem; }
+
+.csnt-service {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.csnt-service__text { display: flex; flex-direction: column; }
+.csnt-service__name { font-size: 0.75rem; font-weight: 700; color: var(--csnt-ink); }
+.csnt-service__description { margin: 0.125rem 0 0; font-size: 0.6875rem; line-height: 1.45; color: var(--csnt-muted); }
+
+.csnt-service__policy {
+  margin-top: 0.125rem;
+  font-size: 0.6875rem;
+  color: var(--csnt-brand-deep);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.csnt-service__always {
+  flex: none;
+  font-family: var(--csnt-font-ui);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--csnt-faint);
+  white-space: nowrap;
+  padding-top: 0.2rem;
+}
+
+/* ------------------------------------------------------------------ switch */
+
+.csnt-switch { position: relative; display: inline-flex; align-items: center; flex: none; cursor: pointer; }
+.csnt-switch__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
+.csnt-switch input {
+  position: absolute;
+  inset: 0;
+  width: 2.75rem;
+  height: 1.5rem;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.csnt-switch__track {
+  display: inline-flex;
+  align-items: center;
+  width: 2.75rem;
+  height: 1.5rem;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--csnt-surface-muted-line);
+  transition: background-color .2s ease-in-out;
+}
+
+.csnt-switch__knob {
+  display: block;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  background: var(--csnt-surface);
+  box-shadow: 0 1px 2px rgba(20, 18, 16, 0.25);
+  transition: transform .2s ease-in-out;
+}
+
+.csnt-switch input:checked + .csnt-switch__track { background: var(--csnt-brand); }
+.csnt-switch input:checked + .csnt-switch__track .csnt-switch__knob { transform: translateX(1.25rem); }
+.csnt-switch input:focus-visible + .csnt-switch__track { outline: 2px solid var(--csnt-brand); outline-offset: 2px; }
+
+/* ------------------------------------------------------------ panel footer */
+
+.csnt-panel__footer {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--csnt-line);
+  background: var(--csnt-surface-sunken);
+}
+
+.csnt-pill {
+  appearance: none;
+  flex: 1 1 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-family: var(--csnt-font);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.3;
+  cursor: pointer;
+  transition: background-color .2s ease, border-color .2s ease;
+}
+
+.csnt-pill--ghost { background: transparent; border-color: color-mix(in srgb, var(--csnt-ink) 15%, transparent); color: var(--csnt-ink-soft); }
+.csnt-pill--ghost:hover { background: var(--csnt-surface-muted); }
+.csnt-pill--muted { background: var(--csnt-surface-muted); border-color: var(--csnt-surface-muted-line); color: var(--csnt-ink); }
+.csnt-pill--muted:hover { background: var(--csnt-surface-muted-line); }
+.csnt-pill--brand { background: var(--csnt-brand); border-color: color-mix(in srgb, var(--csnt-brand) 30%, transparent); color: var(--csnt-brand-ink); }
+.csnt-pill--brand:hover { background: var(--csnt-brand-hover); }
+
+/* -------------------------------------------------------------------- gate */
+
+.csnt-gate { position: relative; }
+
+.csnt-gate__placeholder {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 17.5rem;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--csnt-line);
+  border-radius: var(--csnt-radius-card);
+  background: var(--csnt-surface-sunken);
+  text-align: center;
+}
+
+.csnt-gate__cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.1); opacity: .35; }
+
+.csnt-gate__body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 24rem;
+  padding: 2rem;
+}
+
+.csnt-gate__title { font-family: var(--csnt-font-display); font-size: 1.125rem; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+.csnt-gate__message { margin: 0; font-size: 0.875rem; line-height: 1.55; color: var(--csnt-muted); }
+.csnt-gate__policy { font-size: 0.75rem; color: var(--csnt-brand-deep); text-decoration: underline; text-underline-offset: 2px; }
+
+.csnt-gate__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.75rem;
+}
+
+.csnt-gate__actions .csnt-btn { width: auto; }
+
+/* ------------------------------------------------------------------ narrow */
+
+@media (max-width: 30rem) {
+  .csnt-banner { bottom: 1rem; left: 1rem; width: calc(100% - 2rem); }
+  .csnt-banner__card { padding: 1.5rem; border-radius: 2rem; }
+  .csnt-banner__title { font-size: 1.25rem; }
+  .csnt-panel { right: 1rem; left: 1rem; bottom: 1rem; width: auto; max-width: none; max-height: calc(100vh - 2rem); }
+  .csnt-panel__footer { flex-wrap: wrap; }
+  .csnt-pill { flex: 1 1 8rem; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .csnt-switch__track,
-  .csnt-switch__track::after { transition: none; }
+  .csnt-btn, .csnt-pill, .csnt-caption, .csnt-switch__track, .csnt-switch__knob, .csnt-panel__close { transition: none; }
 }

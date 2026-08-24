@@ -188,19 +188,30 @@
 
   function openModal() {
     if (!modal) return;
+    // The banner steps aside while the panel is open: they occupy opposite
+    // corners, but on a narrow screen the panel covers the whole width.
+    hide(banner);
     lastFocused = document.activeElement;
     if (root) root.hidden = false;
     show(modal);
     syncToggles();
-    document.documentElement.classList.add('csnt-locked');
     var first = modal.querySelector('button, input');
     if (first) first.focus();
   }
 
   function closeModal() {
     hide(modal);
-    document.documentElement.classList.remove('csnt-locked');
-    if (root && banner && banner.hidden) root.hidden = true;
+
+    // Closing without deciding is not a yes. Whichever way the panel was
+    // closed — the button, Escape, the gate — an undecided visitor gets the
+    // banner back rather than a page that pretends consent was given. This
+    // lives here, not on the close button, because Escape used to walk past it.
+    if (!state) {
+      showBanner();
+    } else if (root && banner && banner.hidden) {
+      root.hidden = true;
+    }
+
     if (lastFocused && lastFocused.focus) lastFocused.focus();
   }
 
@@ -248,9 +259,6 @@
     if (target.hasAttribute('data-consent-close')) {
       event.preventDefault();
       closeModal();
-      // Closing without deciding is not a yes. If nothing is stored yet, the
-      // banner comes back rather than the page pretending consent was given.
-      if (!state) showBanner();
       return;
     }
 

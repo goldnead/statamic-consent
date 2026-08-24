@@ -4,6 +4,11 @@
 
 ### What's new
 
+- **The banner is a card in the bottom-left corner and the settings panel sits in the opposite
+  corner**, in the shape adriangoldner.com established — not a bar across the page. No font is
+  loaded: the banner inherits the site's own faces. Every colour, radius and shadow is a custom
+  property.
+
 - **Cookie banner and settings dialog**, with the wording editable in the control panel under
   **Globals → Consent**. Every route out of the banner — accept all, essential only, settings — is
   one click and looks like the others.

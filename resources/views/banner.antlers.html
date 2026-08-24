@@ -1,45 +1,62 @@
-{{# The banner and the settings dialog. Rendered hidden; the script decides
-    whether this visitor still needs to see it. #}}
+{{# Banner and settings panel, in the shape adriangoldner.com established: a card
+    in the bottom-left corner rather than a bar across the page, and a settings
+    panel in the opposite corner rather than a modal over the content.
+
+    Both start hidden; the script decides whether this visitor still needs them. #}}
 <div class="csnt" data-consent-root hidden>
-    <div class="csnt-banner" role="dialog" aria-modal="false" aria-labelledby="csnt-banner-title" data-consent-banner hidden>
-        <div class="csnt-banner__inner">
+    <div class="csnt-banner" role="dialog" aria-labelledby="csnt-banner-title" aria-describedby="csnt-banner-text" data-consent-banner hidden>
+        <div class="csnt-banner__card">
             <div class="csnt-banner__text">
                 <h2 class="csnt-banner__title" id="csnt-banner-title">{{ texts:banner_title }}</h2>
-                <p class="csnt-banner__description">{{ texts:banner_description }}</p>
-                <p class="csnt-banner__links">
-                    {{ if privacy_url }}<a href="{{ privacy_url }}">{{ texts:privacy_policy_label }}</a>{{ /if }}
-                    {{ if imprint_url }}<a href="{{ imprint_url }}">{{ texts:imprint_label }}</a>{{ /if }}
-                </p>
+                <p class="csnt-banner__description" id="csnt-banner-text">{{ texts:banner_description }}</p>
             </div>
-            <div class="csnt-banner__actions">
-                <button type="button" class="csnt-btn csnt-btn--ghost" data-consent-open>{{ texts:settings_label }}</button>
-                <button type="button" class="csnt-btn csnt-btn--secondary" data-consent-necessary>{{ texts:only_necessary_label }}</button>
-                <button type="button" class="csnt-btn csnt-btn--primary" data-consent-accept-all>{{ texts:accept_all_label }}</button>
+
+            <div class="csnt-banner__foot">
+                <div class="csnt-banner__actions">
+                    <button type="button" class="csnt-btn csnt-btn--secondary" data-consent-necessary>{{ texts:only_necessary_label }}</button>
+                    <button type="button" class="csnt-btn csnt-btn--primary" data-consent-accept-all>{{ texts:accept_all_label }}</button>
+                </div>
+                <div class="csnt-banner__links">
+                    {{ if privacy_url }}
+                        <a class="csnt-caption" href="{{ privacy_url }}">{{ texts:privacy_policy_label }}</a>
+                    {{ else }}
+                        <span></span>
+                    {{ /if }}
+                    <button type="button" class="csnt-caption" data-consent-open>{{ texts:settings_label }}</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="csnt-modal" role="dialog" aria-modal="true" aria-labelledby="csnt-modal-title" data-consent-modal hidden>
-        <div class="csnt-modal__backdrop" data-consent-close></div>
-        <div class="csnt-modal__panel">
-            <div class="csnt-modal__header">
-                <h2 class="csnt-modal__title" id="csnt-modal-title">{{ texts:modal_title }}</h2>
-                <button type="button" class="csnt-modal__close" data-consent-close aria-label="{{ texts:close_label }}">&times;</button>
-            </div>
+    {{#
+        A panel, not a modal: it sits beside the page instead of over it, so it
+        carries role="dialog" without aria-modal. Claiming modality while the
+        rest of the page stays reachable is the one thing worse than neither.
+    #}}
+    <div class="csnt-panel" role="dialog" aria-labelledby="csnt-panel-title" data-consent-modal hidden>
+        <div class="csnt-panel__header">
+            <h2 class="csnt-panel__title" id="csnt-panel-title">{{ texts:modal_title }}</h2>
+            <button type="button" class="csnt-panel__close" data-consent-close aria-label="{{ texts:close_label }}">
+                <svg viewBox="0 0 14 14" width="12" height="12" aria-hidden="true" focusable="false">
+                    <path d="M1 1l12 12M13 1L1 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
 
-            <div class="csnt-modal__body">
-                <p class="csnt-modal__description">{{ texts:modal_description }}</p>
+        <div class="csnt-panel__body">
+            <p class="csnt-panel__description">{{ texts:modal_description }}</p>
 
-                {{ categories }}
-                    <section class="csnt-category">
-                        <h3 class="csnt-category__title">{{ name }}</h3>
-                        {{ if description }}<p class="csnt-category__description">{{ description }}</p>{{ /if }}
+            {{ categories }}
+                <section class="csnt-category">
+                    <h3 class="csnt-category__title">{{ name }}</h3>
+                    {{ if description }}<p class="csnt-category__description">{{ description }}</p>{{ /if }}
 
+                    <div class="csnt-category__services">
                         {{ services }}
                             <div class="csnt-service">
                                 <div class="csnt-service__text">
                                     <span class="csnt-service__name">{{ name }}</span>
-                                    {{ if description }}<span class="csnt-service__description">{{ description }}</span>{{ /if }}
+                                    {{ if description }}<p class="csnt-service__description">{{ description }}</p>{{ /if }}
                                     {{ if policy_url }}
                                         <a class="csnt-service__policy" href="{{ policy_url }}" target="_blank" rel="noopener noreferrer">{{ policy_label }}</a>
                                     {{ /if }}
@@ -49,21 +66,21 @@
                                 {{ else }}
                                     <label class="csnt-switch">
                                         <input type="checkbox" data-consent-service="{{ handle }}">
-                                        <span class="csnt-switch__track" aria-hidden="true"></span>
+                                        <span class="csnt-switch__track" aria-hidden="true"><span class="csnt-switch__knob"></span></span>
                                         <span class="csnt-switch__label">{{ name }}</span>
                                     </label>
                                 {{ /if }}
                             </div>
                         {{ /services }}
-                    </section>
-                {{ /categories }}
-            </div>
+                    </div>
+                </section>
+            {{ /categories }}
+        </div>
 
-            <div class="csnt-modal__footer">
-                <button type="button" class="csnt-btn csnt-btn--ghost" data-consent-reject-all>{{ texts:reject_all_label }}</button>
-                <button type="button" class="csnt-btn csnt-btn--secondary" data-consent-save>{{ texts:save_label }}</button>
-                <button type="button" class="csnt-btn csnt-btn--primary" data-consent-accept-all>{{ texts:accept_all_label }}</button>
-            </div>
+        <div class="csnt-panel__footer">
+            <button type="button" class="csnt-pill csnt-pill--ghost" data-consent-reject-all>{{ texts:reject_all_label }}</button>
+            <button type="button" class="csnt-pill csnt-pill--muted" data-consent-save>{{ texts:save_label }}</button>
+            <button type="button" class="csnt-pill csnt-pill--brand" data-consent-accept-all>{{ texts:accept_all_label }}</button>
         </div>
     </div>
 </div>

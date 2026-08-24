@@ -7,6 +7,8 @@ Built for sites where the same person maintains the site and answers for it: the
 global set the client can edit, the handles live in the config file the developer controls, and a
 blocked embed is genuinely absent from the page rather than hidden with CSS.
 
+![The banner and a blocked embed](docs/banner.png)
+
 ![The services list in the control panel](docs/cp-services.png)
 
 ## Requirements
@@ -55,14 +57,14 @@ decision that was freely given.
 {{ /consent:gate }}
 ```
 
-![A blocked embed](docs/gate.png)
-
 The iframe is parked in a `<template>`. Browsers parse a template but issue no requests for what is
 inside it, so nothing reaches YouTube until the visitor presses the button. Rendering the iframe and
 hiding it with CSS would look identical and be exactly the violation this tag exists to prevent.
 
 A gate naming a service that is not configured stays blocked and says so, rather than falling
 through — a typo must not publish an unconsented embed.
+
+![The banner on a narrow screen](docs/mobile.png)
 
 ### Blocking a script
 
@@ -86,7 +88,7 @@ the existing node would do nothing; the browser decided how to treat it at parse
 `{{ consent:granted }}` reads the cookie on the server, so it is wrong on a page served from a
 full-page cache. Use the gate for anything that loads a third party; use `granted` for prose.
 
-![The settings dialog](docs/dialog.png)
+![The settings panel](docs/dialog.png)
 
 ## Configuration
 
@@ -109,13 +111,43 @@ shipped text in the visitor's language rather than rendering blank.
 
 ### Styling
 
-The stylesheet is driven by custom properties:
+The banner is a card in the bottom-left corner and the settings panel sits in the opposite corner,
+which is the shape adriangoldner.com established. **No font is loaded**: the banner inherits the
+site's own faces, which is why it reads as part of the page rather than a widget dropped onto it.
+Point the three type tokens at your theme's faces if you use utility classes rather than inherited
+typography:
 
 ```css
 :root {
-    --csnt-accent: #f0421e;
-    --csnt-accent-fg: #fff;
-    --csnt-radius: 0;
+    --csnt-font: 'Inter', system-ui, sans-serif;         /* body */
+    --csnt-font-display: 'Outfit', system-ui, sans-serif; /* headings */
+    --csnt-font-ui: 'JetBrains Mono', ui-monospace, monospace; /* buttons, captions */
+}
+```
+
+Everything else is a token too. The full set, with the shipped defaults:
+
+```css
+:root {
+    --csnt-surface: #FFFFFF;          /* card and panel */
+    --csnt-surface-sunken: #FAF8F4;   /* panel footer, blocked embed */
+    --csnt-surface-muted: #F3F0EA;    /* the secondary button */
+    --csnt-surface-muted-line: #EAE6DE;
+    --csnt-ink: #141210;
+    --csnt-ink-soft: #44403C;
+    --csnt-muted: #78716C;            /* body copy, captions */
+    --csnt-faint: #A8A29E;
+    --csnt-line: rgba(20, 18, 16, 0.10);
+
+    --csnt-brand: #E8B931;            /* the one accent */
+    --csnt-brand-hover: #F5D04A;
+    --csnt-brand-ink: #141210;        /* text on the accent */
+    --csnt-brand-deep: #A67D14;       /* links, hover */
+
+    --csnt-radius-card: 2.5rem;
+    --csnt-radius-panel: 1.5rem;
+    --csnt-shadow-card: 0 32px 64px -24px rgba(20, 18, 16, 0.14);
+    --csnt-shadow-panel: 0 32px 64px -24px rgba(20, 18, 16, 0.18);
 }
 ```
 
@@ -126,9 +158,9 @@ follow the operating system. Without it the banner stays light, because a widget
 ![The dialog in a dark theme](docs/dialog-dark.png)
 
 To replace the stylesheet entirely, set `assets.styles` to `false` and write your own CSS against the
-class names (`csnt-banner`, `csnt-modal`, `csnt-gate`, `csnt-switch`, …). **The class names and the
-published view paths (`resources/views/vendor/statamic-consent/`) are public API**; the CSS rules are
-not.
+class names (`csnt-banner`, `csnt-panel`, `csnt-gate`, `csnt-btn`, `csnt-pill`, `csnt-switch`,
+`csnt-caption`). **The class names and the published view paths
+(`resources/views/vendor/statamic-consent/`) are public API**; the CSS rules are not.
 
 ### JavaScript
 
