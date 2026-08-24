@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.4.0
+
+### What's new
+
+- **Proof of consent**, off by default. Article 7(1) GDPR puts the burden of proof on the controller,
+  and a value in the visitor's own browser is not proof. Switch on `record.enabled`, run
+  `php artisan migrate`, and every decision is recorded server-side — the id, timestamp, version,
+  granted handles and how it was decided. **No IP address, no user agent**: both are personal data in
+  their own right and neither is needed.
+- **`php please consent:lookup`** answers the question the log exists for, with `--latest` and
+  `--csv`. **`php please consent:prune`** enforces the retention.
+
 ## 1.3.1
 
 ### What's fixed

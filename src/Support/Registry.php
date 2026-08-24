@@ -181,6 +181,7 @@ class Registry
                 'imprint' => $this->imprintUrl(),
             ],
             'googleConsentMode' => $this->googleConsentMode(),
+            'record' => (bool) config('statamic-consent.record.enabled', false),
         ];
     }
 
@@ -228,24 +229,43 @@ class Registry
     }
 
     /**
-     * @return list<string>
+     * The whole stored decision, or null when there is none worth reading.
+     *
+     * decision() answers "what may load"; this answers "what exactly did the
+     * browser record", which is what a proof log needs.
+     *
+     * @return array<string, mixed>|null
      */
-    public function decision(?Request $request = null): array
+    public function rawDecision(?Request $request = null): ?array
     {
         $request ??= request();
         $raw = $request->cookie((string) config('statamic-consent.cookie.name', 'statamic_consent'));
 
         if (! is_string($raw) || $raw === '') {
-            return [];
+            return null;
         }
 
         $decoded = json_decode(rawurldecode($raw), true);
 
         if (! is_array($decoded)) {
-            return [];
+            return null;
         }
 
         if ((int) ($decoded['v'] ?? 0) !== (int) config('statamic-consent.version', 1)) {
+            return null;
+        }
+
+        return $decoded;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function decision(?Request $request = null): array
+    {
+        $decoded = $this->rawDecision($request);
+
+        if ($decoded === null) {
             return [];
         }
 

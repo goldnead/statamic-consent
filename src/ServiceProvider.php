@@ -10,6 +10,10 @@ class ServiceProvider extends AddonServiceProvider
 {
     protected $viewNamespace = 'statamic-consent';
 
+    protected $routes = [
+        'web' => __DIR__.'/../routes/web.php',
+    ];
+
     /**
      * The parent boots config off the addon directory, which is resolved through
      * the manifest and comes up empty in package test suites. Config is merged
@@ -41,6 +45,17 @@ class ServiceProvider extends AddonServiceProvider
         EncryptCookies::except([
             (string) config('statamic-consent.cookie.name', 'statamic_consent'),
         ]);
+
+        // Only when the proof log is switched on. Loading them unconditionally
+        // would force a table on every flat installation that never asked for
+        // one. Same reasoning leadhub uses for its eloquent driver.
+        if (config('statamic-consent.record.enabled', false)) {
+            $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        }
+
+        $this->publishes([
+            __DIR__.'/../database/migrations' => database_path('migrations'),
+        ], 'statamic-consent-migrations');
 
         $this->publishes([
             __DIR__.'/../config/statamic-consent.php' => config_path('statamic-consent.php'),

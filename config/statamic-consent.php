@@ -57,6 +57,41 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Proof of consent
+    |--------------------------------------------------------------------------
+    |
+    | Article 7(1) GDPR puts the burden of proof on you, and a value in the
+    | visitor's own browser is not proof: it belongs to them and they can change
+    | it. Switch this on to keep a server-side record.
+    |
+    | Off by default, for three reasons. A site with no optional services has
+    | nothing to prove. A record is itself a processing activity and belongs in
+    | your privacy policy. And it needs a database, which a flat installation
+    | may not have.
+    |
+    | What is stored: the random id from the cookie, a timestamp, the version
+    | consented to, the granted handles, how the decision was made, and the site.
+    | Deliberately NOT stored: IP address and user agent. Both are personal data
+    | in their own right and neither is needed — the id does the linking. Storing
+    | them turns a proof log into a visitor database.
+    |
+    | Run `php artisan migrate` after switching this on.
+    |
+    */
+
+    'record' => [
+        'enabled' => false,
+
+        // Consent older than this is deleted by `php please consent:prune`.
+        // Null keeps everything, which is the opposite of data minimisation.
+        'keep_days' => 400,
+
+        // Per minute, per IP. The endpoint writes rows, so it needs a brake.
+        'rate_limit' => 30,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Google Consent Mode v2
     |--------------------------------------------------------------------------
     |

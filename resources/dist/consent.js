@@ -88,7 +88,33 @@
 
     state = data;
     apply();
+    recordProof();
     document.dispatchEvent(new CustomEvent('consent:changed', { detail: { granted: data.granted, how: how } }));
+  }
+
+  /**
+   * Tell the server a decision was made, so it can write its own proof.
+   *
+   * Deliberately sends **no data**: the server reads the cookie it just
+   * received. Anything this could put in a body, a stranger could put there too.
+   *
+   * keepalive, so a decision made on the way out of the page still arrives. And
+   * no error handling beyond swallowing: the record is a side effect, never a
+   * step in the visitor's way. If it fails, the visitor has still decided.
+   */
+  function recordProof() {
+    if (!config.record) return;
+
+    try {
+      fetch('/!/statamic-consent/record', {
+        method: 'POST',
+        credentials: 'same-origin',
+        keepalive: true,
+        headers: { 'Accept': 'application/json' }
+      }).catch(function () {});
+    } catch (e) {
+      /* nothing here is worth interrupting a decision for */
+    }
   }
 
   function randomId() {

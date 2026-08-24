@@ -232,12 +232,54 @@ default site. Service handles come from the config file and are therefore identi
 The consent cookie is per domain, as browsers define it. Sites on separate domains ask separately;
 sites on paths of one domain share one decision.
 
+## Proof of consent
+
+Article 7(1) GDPR puts the burden of proof on you, and a value in the visitor's own browser is not
+proof: it belongs to them and they can change it. Switch on a server-side record:
+
+```php
+'record' => [
+    'enabled' => true,
+    'keep_days' => 400,
+    'rate_limit' => 30,
+],
+```
+
+Then `php artisan migrate`. The migration only loads while the record is on, so a flat installation
+that never wants one never gets a table.
+
+**What is stored:** the random id from the cookie, a timestamp, the version consented to, the granted
+handles, how the decision was made, and the site. **Deliberately not stored: IP address and user
+agent.** Both are personal data in their own right and neither is needed — the id does the linking.
+Storing them turns a proof log into a visitor database.
+
+Look one up when someone asks:
+
+```bash
+php please consent:lookup 94a5dd75-f45a-4775-a061-7b17bfc81224
+php please consent:lookup --latest=50
+php please consent:lookup --csv=nachweis.csv 94a5dd75-…
+php please consent:prune              # deletes past keep_days
+```
+
+Two things worth understanding. The endpoint takes **no input**: the browser pings, and the server
+records what its own cookie says. Nothing in the request can be forged because nothing in it is read
+— and a cross-site post arrives without the cookie, because `SameSite=Lax` does not send one. That is
+also why it needs no CSRF token, which could not work on a cached page anyway.
+
+And the record is a **side effect, never a step in the visitor's way**. If the write fails, the
+visitor has still decided.
+
+There is no control panel screen for this. A native listing in Statamic 6 means a Vue build, a
+committed bundle and a CI job proving the bundle is current — machinery this addon deliberately does
+not carry. For a lookup that happens when a lawyer writes, a command is the better trade.
+
 ## What it stores
 
 A first-party cookie (`statamic_consent`, six months) and a localStorage mirror, holding the granted
-handles, a timestamp, how the decision was made and a random id. **Nothing is sent anywhere** — the
-addon has no telemetry, no phone-home and no server-side consent log. If you need a stored record for
-evidence, that is a separate decision, not something this addon does behind your back.
+handles, a timestamp, how the decision was made and a random id. **Nothing leaves your server** — the
+addon has no telemetry and no phone-home. The proof log above is off unless you switch it on, and it
+writes to your own database.
 
 ## Uninstalling
 
