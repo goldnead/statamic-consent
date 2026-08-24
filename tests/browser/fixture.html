@@ -33,11 +33,33 @@
     }
   ],
   "texts": {},
-  "links": {}
+  "links": {},
+  "googleConsentMode": {
+    "signals": {
+      "analytics_storage": ["analytics_pixel"],
+      "ad_storage": ["analytics_pixel", "youtube"],
+      "ad_user_data": [],
+      "ad_personalization": []
+    },
+    "waitForUpdate": 500
+  }
 }
 </script>
 </head>
 <body>
+
+<script>
+  // Steht im echten Betrieb im {{ consent:head }}-Block, vor allem anderen.
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  gtag('consent', 'default', {
+    analytics_storage: 'denied',
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    wait_for_update: 500
+  });
+</script>
 
 <div class="csnt-gate" data-consent-gate="youtube">
   <template data-consent-embed><iframe src="./embed.html" title="embed"></iframe></template>
@@ -50,6 +72,10 @@
   window.__pixelRan = true;
 </script>
 
+<!-- Wie {{ consent:settings_link }} im Fuß jeder Seite: bleibt erreichbar,
+     nachdem entschieden wurde. -->
+<footer><button type="button" id="footer-settings" data-consent-open>Settings</button></footer>
+
 <div class="csnt" data-consent-root hidden>
   <div class="csnt-banner" data-consent-banner hidden>
     <button type="button" data-consent-necessary>Essential only</button>
@@ -61,6 +87,7 @@
     <label><input type="checkbox" data-consent-service="analytics_pixel"> Pixel</label>
     <button type="button" data-consent-save>Save</button>
     <button type="button" data-consent-reject-all>Reject all</button>
+    <button type="button" data-consent-accept-all>Accept all</button>
     <button type="button" data-consent-close>Close</button>
   </div>
 </div>

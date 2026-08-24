@@ -57,6 +57,38 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Google Consent Mode v2
+    |--------------------------------------------------------------------------
+    |
+    | Off by default, and deliberately so: an addon that creates a Google object
+    | on a site that does not use Google is the opposite of what it is for.
+    |
+    | Switch it on only where the site actually loads gtag (Google Analytics,
+    | Google Ads, Tag Manager). Then map each of Google's four signals to the
+    | service handles that must be granted for it. An empty list means the signal
+    | stays denied — which is the right default for anything you have not thought
+    | about yet.
+    |
+    | "wait_for_update" is how long, in milliseconds, Google waits for the update
+    | that follows a visitor's decision before it gives up on the page.
+    |
+    */
+
+    'google_consent_mode' => [
+        'enabled' => false,
+
+        'signals' => [
+            'analytics_storage' => [],
+            'ad_storage' => [],
+            'ad_user_data' => [],
+            'ad_personalization' => [],
+        ],
+
+        'wait_for_update' => 500,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Categories
     |--------------------------------------------------------------------------
     |

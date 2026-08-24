@@ -109,6 +109,31 @@ shipped text in the visitor's language rather than rendering blank.
 | `categories` | four | A category with no services is dropped from the dialog. |
 | `services` | three | The `handle` is what templates refer to. Renaming one after launch breaks every gate that names it. |
 
+### Google Consent Mode v2
+
+Off by default. Switch it on only where the site actually loads gtag — an addon that creates a
+Google object on a site with no Google is the opposite of what it is for.
+
+```php
+'google_consent_mode' => [
+    'enabled' => true,
+    'signals' => [
+        'analytics_storage' => ['google_analytics'],
+        'ad_storage' => ['google_ads'],
+        'ad_user_data' => ['google_ads'],
+        'ad_personalization' => ['google_ads'],
+    ],
+    'wait_for_update' => 500,
+],
+```
+
+`{{ consent:head }}` then writes the `consent default` call **inline and first**, before anything
+else in the head, because Google's default has to be in place before any Google script loads. The
+runtime sends `consent update` as soon as the visitor decides, and again on every later change.
+
+A signal is granted only when **every** service mapped to it is granted. A signal with an empty list
+stays denied — which is the right answer for anything you have not thought about yet.
+
 ### Styling
 
 The banner is a card in the bottom-left corner and the settings panel sits in the opposite corner,

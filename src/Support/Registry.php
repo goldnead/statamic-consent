@@ -167,6 +167,35 @@ class Registry
                 'privacy' => $this->privacyPolicyUrl(),
                 'imprint' => $this->imprintUrl(),
             ],
+            'googleConsentMode' => $this->googleConsentMode(),
+        ];
+    }
+
+    /**
+     * The Google Consent Mode v2 mapping, or null when it is switched off.
+     *
+     * Signals with no services behind them are kept rather than dropped: Google
+     * reads a missing signal as "not answered", and an unanswered signal is not
+     * the same statement as a denied one.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function googleConsentMode(): ?array
+    {
+        if (! config('statamic-consent.google_consent_mode.enabled', false)) {
+            return null;
+        }
+
+        $signals = collect(config('statamic-consent.google_consent_mode.signals', []))
+            ->map(fn ($handles): array => collect($handles)
+                ->filter(fn ($handle): bool => is_string($handle) && $handle !== '')
+                ->values()
+                ->all())
+            ->all();
+
+        return [
+            'signals' => $signals,
+            'waitForUpdate' => (int) config('statamic-consent.google_consent_mode.wait_for_update', 500),
         ];
     }
 

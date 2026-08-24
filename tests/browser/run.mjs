@@ -168,6 +168,64 @@ async function fresh(init) {
   await context.close();
 }
 
+/* --------------------------------------------------------------------------
+   5. Google Consent Mode v2.
+
+   The default is written inline in the head, before any Google script can load.
+   This checks the other half: that the visitor's decision reaches the dataLayer
+   as a real gtag call, and that a signal with nothing mapped to it stays denied.
+-------------------------------------------------------------------------- */
+{
+  console.log('Google Consent Mode');
+  const { context, page } = await fresh();
+  await page.goto(PAGE);
+  await page.waitForTimeout(300);
+
+  const readUpdates = () => page.evaluate(() =>
+    (window.dataLayer || [])
+      .map(entry => Array.from(entry))
+      .filter(args => args[0] === 'consent' && args[1] === 'update')
+      .map(args => args[2]));
+
+  check('the default is on the dataLayer', await page.evaluate(() =>
+    (window.dataLayer || []).some(e => e[0] === 'consent' && e[1] === 'default')));
+
+  await page.click('[data-consent-necessary]');
+  await page.waitForTimeout(300);
+
+  let updates = await readUpdates();
+  const rejected = updates[updates.length - 1];
+  check('a rejection denies analytics_storage', rejected?.analytics_storage === 'denied');
+  check('a rejection denies ad_storage', rejected?.ad_storage === 'denied');
+
+  await page.click('#footer-settings');
+  await page.click('[data-consent-modal] input[data-consent-service="analytics_pixel"]');
+  await page.click('[data-consent-save]');
+  await page.waitForTimeout(300);
+
+  updates = await readUpdates();
+  const partial = updates[updates.length - 1];
+  check('granting the pixel grants analytics_storage', partial?.analytics_storage === 'granted');
+  // ad_storage needs both handles; only one was granted.
+  check('ad_storage stays denied until every mapped service is granted',
+    partial?.ad_storage === 'denied', `ad_storage=${partial?.ad_storage}`);
+  check('a signal with nothing mapped stays denied', partial?.ad_user_data === 'denied');
+
+  // Saving closes the panel, so it has to be reopened — which is also the path
+  // a visitor takes when they change their mind later.
+  await page.click('#footer-settings');
+  await page.waitForTimeout(200);
+  await page.click('[data-consent-modal] [data-consent-accept-all]');
+  await page.waitForTimeout(300);
+
+  updates = await readUpdates();
+  const all = updates[updates.length - 1];
+  check('accepting everything grants ad_storage', all?.ad_storage === 'granted');
+  check('an unmapped signal is still denied after accept all', all?.ad_user_data === 'denied');
+
+  await context.close();
+}
+
 await browser.close();
 
 console.log('');

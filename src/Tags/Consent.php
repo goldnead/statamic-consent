@@ -34,6 +34,14 @@ class Consent extends Tags
             $out[] = '<link rel="stylesheet" href="'.e($this->asset('consent.css')).'">';
         }
 
+        // Google's default must be in place before any Google script loads, and
+        // the runtime below is deferred — so this one goes inline, first, and on
+        // its own. Getting the order wrong builds a feature that looks like it
+        // runs while Google keeps measuring as though nothing was said.
+        if ($mode = $this->registry()->googleConsentMode()) {
+            $out[] = $this->consentModeDefault($mode);
+        }
+
         if (config('statamic-consent.assets.scripts', true)) {
             $payload = json_encode(
                 $this->registry()->payload(),
@@ -128,6 +136,34 @@ class Consent extends Tags
         return '<button type="button" data-consent-open class="'
             .e((string) $this->params->get('class', 'csnt-settings-link'))
             .'">'.e($label).'</button>';
+    }
+
+    /**
+     * The Consent Mode default: everything denied until the visitor says
+     * otherwise, with the update left to the runtime.
+     *
+     * Denied-then-update rather than reading the cookie here on purpose — this
+     * markup sits on a page that may be served from a full-page cache, where the
+     * server's idea of the visitor's decision belongs to whoever warmed it.
+     *
+     * @param  array<string, mixed>  $mode
+     */
+    protected function consentModeDefault(array $mode): string
+    {
+        $default = collect($mode['signals'])
+            ->map(fn (): string => 'denied')
+            ->put('wait_for_update', (int) $mode['waitForUpdate'])
+            ->all();
+
+        $json = json_encode($default, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+
+        return <<<HTML
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('consent', 'default', {$json});
+        </script>
+        HTML;
     }
 
     /**

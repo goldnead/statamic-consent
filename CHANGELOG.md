@@ -22,3 +22,6 @@
 - **English and German** translations; a field left empty in the control panel falls back to the
   shipped text in the visitor's language.
 - **`php please consent:install`** publishes the assets and blueprint and seeds the global set.
+- **Google Consent Mode v2**, off by default. Map each of Google's four signals to the services
+  behind it; the `consent default` call is written inline and first, the update follows the
+  visitor's decision.

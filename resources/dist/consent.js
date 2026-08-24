@@ -151,9 +151,39 @@
     });
   }
 
+  /**
+   * Google Consent Mode v2.
+   *
+   * The default was written inline in the head, before any Google script could
+   * load. This is the other half: what the visitor actually said. It only ever
+   * pushes onto a dataLayer the page already has — if Consent Mode is off in the
+   * config, nothing here runs and no Google object is created.
+   */
+  function pushConsentMode() {
+    var mode = config.googleConsentMode;
+    if (!mode || !window.dataLayer) return;
+
+    var update = {};
+    var signals = mode.signals || {};
+
+    Object.keys(signals).forEach(function (signal) {
+      var handles = signals[signal] || [];
+      // A signal with nothing behind it stays denied. Granting it because no
+      // service was mapped would be answering a question nobody asked.
+      var allowed = handles.length > 0 && handles.every(isGranted);
+      update[signal] = allowed ? 'granted' : 'denied';
+    });
+
+    // gtag pushes its own `arguments` object, and Google's tag reads it as such.
+    // A plain array looks the same in the console and is not the same thing.
+    function gtag() { window.dataLayer.push(arguments); }
+    gtag('consent', 'update', update);
+  }
+
   function apply() {
     unlockGates();
     unlockScripts();
+    pushConsentMode();
     syncToggles();
     document.documentElement.setAttribute(
       'data-consent',
