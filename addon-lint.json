@@ -10,7 +10,12 @@
     "Control, parked scripts). Adding the dependency would pull a UI kit nothing imports.",
     "",
     "Revisit this the day the addon grows a real CP screen — then the rule is right and this entry",
-    "is wrong."
+    "is wrong.",
+    "",
+    "release.editions is an INFO, not a rule, and it asks a question rather than reporting a fault:",
+    "\"Confirm this is a single-edition commercial addon.\" Confirmed on 2026-08-24 — $20, one",
+    "product, no Core/Pro split. See MARKETPLACE.md. The field stays absent because the linter is",
+    "right that a declared edition without a feature behind it cannot gate anything."
   ],
   "disable": [
     "ui.statamic-cms-package"
