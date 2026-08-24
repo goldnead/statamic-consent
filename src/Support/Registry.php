@@ -103,6 +103,19 @@ class Registry
     }
 
     /**
+     * Is there anything to ask about?
+     *
+     * Strictly necessary cookies need no consent, so a site that loads no third
+     * party has nothing to put in a banner. Asking anyway trains people to click
+     * the nearest button, which is the opposite of an informed decision — and it
+     * is the state every installation is in on its first day.
+     */
+    public function hasOptionalServices(): bool
+    {
+        return collect($this->services())->contains(fn (array $service): bool => ! $service['required']);
+    }
+
+    /**
      * The visitor-facing wording. Falls back to the translation files, so an
      * installation that never opens the global set still reads correctly.
      *

@@ -197,6 +197,19 @@ StatamicConsent.reset()              // forget the decision, show the banner
 document.addEventListener('consent:changed', e => e.detail.granted)
 ```
 
+## When there is nothing to ask
+
+If no optional service is configured — only essential ones, or none at all — `{{ consent:head }}`,
+`{{ consent:banner }}` and `{{ consent:settings_link }}` render **nothing**. No stylesheet, no
+script, no banner.
+
+Strictly necessary cookies need no consent, so a site that loads no third party has nothing to put
+in a banner. Asking anyway trains people to click the nearest button, which is the opposite of an
+informed decision. It is also the state every installation is in on its first day: install the
+addon, and the site is unchanged until you enter a service.
+
+A `{{ consent:gate }}` still blocks in that state. Failing open is never the safe answer.
+
 ## Multi-site
 
 **The wording is per site; the handles are shared.** The global set is localisable, so each site has

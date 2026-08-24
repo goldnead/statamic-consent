@@ -28,6 +28,12 @@ class Consent extends Tags
      */
     public function head(): string
     {
+        // Nothing optional means nothing to ask about, so the page gets no
+        // stylesheet, no script and no banner at all. See Registry::hasOptionalServices().
+        if (! $this->registry()->hasOptionalServices()) {
+            return '';
+        }
+
         $out = [];
 
         if (config('statamic-consent.assets.styles', true)) {
@@ -63,6 +69,10 @@ class Consent extends Tags
      */
     public function banner(): string
     {
+        if (! $this->registry()->hasOptionalServices()) {
+            return '';
+        }
+
         return $this->render('statamic-consent::banner', [
             'texts' => $this->registry()->texts(),
             'categories' => $this->registry()->categories(),
@@ -131,6 +141,10 @@ class Consent extends Tags
      */
     public function settingsLink(): string
     {
+        if (! $this->registry()->hasOptionalServices()) {
+            return '';
+        }
+
         $label = (string) ($this->params->get('label') ?: $this->registry()->texts()['settings_label']);
 
         return '<button type="button" data-consent-open class="'

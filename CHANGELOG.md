@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.0
+
+### What's new
+
+- **Nothing to ask, nothing rendered.** With no optional service configured, `{{ consent:head }}`,
+  `{{ consent:banner }}` and `{{ consent:settings_link }}` render nothing at all. Strictly necessary
+  cookies need no consent, so a site that loads no third party has nothing to put in a banner — and
+  that is the state every installation is in on its first day. A gate still blocks.
+
 ## 1.1.0
 
 ### What's new
