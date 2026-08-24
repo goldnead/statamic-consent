@@ -17,5 +17,23 @@ use Illuminate\Support\Facades\Route;
  */
 Route::post('/!/statamic-consent/record', RecordController::class)
     ->middleware([ThrottleRequests::class.':'.(int) config('statamic-consent.record.rate_limit', 30).',1'])
-    ->withoutMiddleware([VerifyCsrfToken::class])
+    ->withoutMiddleware([
+        // Drei Namen, nicht einer. In Laravel 12/13 steht in der `web`-Gruppe
+        // `PreventRequestForgery`; `VerifyCsrfToken` ist dessen **Unterklasse**,
+        // und `Router::resolveMiddleware()` entfernt nur, was Unterklasse des
+        // Ausgeschlossenen ist — die Unterklasse auszuschliessen entfernt die
+        // Oberklasse also nicht. Die Prüfung bleibt stehen, der Anbieter
+        // schickt kein Token, und jede echte Zustellung endet mit 419.
+        //
+        // Im Testlauf ist das unsichtbar: `PreventRequestForgery::handle()`
+        // steigt bei `runningUnitTests()` sofort aus. Deshalb prüft ein Test
+        // die aufgesammelte Middleware-Liste statt eine Anfrage.
+        //
+        // Dieselben drei Namen schliesst Statamic selbst aus
+        // (`vendor/statamic/cms/routes/web.php:106`).
+        'App\Http\Middleware\VerifyCsrfToken',
+        'Illuminate\Foundation\Http\Middleware\VerifyCsrfToken',
+        'Illuminate\Foundation\Http\Middleware\ValidateCsrfToken',
+        'Illuminate\Foundation\Http\Middleware\PreventRequestForgery',
+    ])
     ->name('statamic-consent.record');
