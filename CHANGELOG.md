@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.4.1
+
+### What's fixed
+
+- **The proof-of-consent endpoint answered 419 on every real delivery.** The route excluded
+  `VerifyCsrfToken`, but Laravel 12 and 13 register `PreventRequestForgery` in the `web` group and
+  `VerifyCsrfToken` is its *subclass* — and `Router::resolveMiddleware()` removes only what is a
+  subclass of the excluded class, never the parent. So the check stayed on, the browser's `fetch`
+  carries no token, and nothing was ever recorded. Invisible to the suite because
+  `PreventRequestForgery::handle()` returns early under `runningUnitTests()`; the new test therefore
+  asserts the route's gathered middleware list rather than making a request. **Anyone running 1.4.0
+  with `record.enabled` has an empty log and should update.**
+
 ## 1.4.0
 
 ### What's new
