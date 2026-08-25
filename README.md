@@ -146,51 +146,95 @@ runtime sends `consent update` as soon as the visitor decides, and again on ever
 A signal is granted only when **every** service mapped to it is granted. A signal with an empty list
 stays denied — which is the right answer for anything you have not thought about yet.
 
-### Styling
+### Making it yours
 
-The banner is a card in the bottom-left corner and the settings panel sits in the opposite corner,
-which is the shape adriangoldner.com established. **No font is loaded**: the banner inherits the
-site's own faces, which is why it reads as part of the page rather than a widget dropped onto it.
-Point the three type tokens at your theme's faces if you use utility classes rather than inherited
-typography:
+**The defaults are deliberately plain.** Near-black on near-white, a modest radius, ordinary
+sentence-case buttons, and **no font of its own** — the banner inherits the site's faces. An
+un-themed banner should read as *unstyled*, never as *someone else's brand*. Until 1.5.0 it did the
+latter: it shipped one particular site's yellow, cream and pill buttons to everyone.
 
-```css
-:root {
-    --csnt-font: 'Inter', system-ui, sans-serif;         /* body */
-    --csnt-font-display: 'Outfit', system-ui, sans-serif; /* headings */
-    --csnt-font-ui: 'JetBrains Mono', ui-monospace, monospace; /* buttons, captions */
-}
-```
-
-Everything else is a token too. The full set, with the shipped defaults:
+Start with the accent. Three properties usually get you the whole way:
 
 ```css
 :root {
-    --csnt-surface: #FFFFFF;          /* card and panel */
-    --csnt-surface-sunken: #FAF8F4;   /* panel footer, blocked embed */
-    --csnt-surface-muted: #F3F0EA;    /* the secondary button */
-    --csnt-surface-muted-line: #EAE6DE;
-    --csnt-ink: #141210;
-    --csnt-ink-soft: #44403C;
-    --csnt-muted: #78716C;            /* body copy, captions */
-    --csnt-faint: #A8A29E;
-    --csnt-line: rgba(20, 18, 16, 0.10);
-
-    --csnt-brand: #E8B931;            /* the one accent */
-    --csnt-brand-hover: #F5D04A;
-    --csnt-brand-ink: #141210;        /* text on the accent */
-    --csnt-brand-deep: #A67D14;       /* links, hover */
-
-    --csnt-radius-card: 2.5rem;
-    --csnt-radius-panel: 1.5rem;
-    --csnt-shadow-card: 0 32px 64px -24px rgba(20, 18, 16, 0.14);
-    --csnt-shadow-panel: 0 32px 64px -24px rgba(20, 18, 16, 0.18);
+    --csnt-brand: #14504A;      /* the one accent: primary button, switch, focus ring */
+    --csnt-brand-ink: #FBFCFA;  /* text on the accent */
+    --csnt-radius-card: 0.25rem;
 }
 ```
+
+The full set, with the shipped defaults:
+
+```css
+:root {
+    /* Surfaces and ink */
+    --csnt-surface: #FFFFFF;                            /* card and panel */
+    --csnt-surface-sunken: #F7F7F6;                     /* panel footer, blocked embed */
+    --csnt-surface-muted: #F1F1F0;                      /* the secondary button */
+    --csnt-surface-muted-line: #E6E6E4;
+    --csnt-ink: #17171A;
+    --csnt-ink-soft: #45454B;
+    --csnt-muted: #71717A;                              /* body copy, captions */
+    --csnt-faint: #A1A1AA;
+    --csnt-line: rgba(23, 23, 26, 0.10);
+
+    /* The accent */
+    --csnt-brand: #17171A;                              /* the one accent: primary button, switch, focus ring */
+    --csnt-brand-hover: #34343A;
+    --csnt-brand-ink: #FFFFFF;                          /* text on the accent */
+    --csnt-brand-deep: #45454B;                         /* links, hover */
+
+    /* Shape */
+    --csnt-radius-card: 1rem;
+    --csnt-radius-panel: 0.875rem;
+    --csnt-radius-inner: 0.5rem;                        /* the blocked-embed placeholder */
+    --csnt-radius-button: 0.5rem;
+    --csnt-radius-pill: 999px;                          /* the switch and the close button */
+    --csnt-shadow-card: 0 20px 44px -20px rgba(23, 23, 26, 0.18);
+    --csnt-shadow-panel: 0 20px 44px -20px rgba(23, 23, 26, 0.22);
+    --csnt-shadow-knob: 0 1px 2px rgba(0, 0, 0, 0.25);  /* the switch's knob */
+
+    /* Type — all three inherit from the site by default */
+    --csnt-font: inherit;                               /* body */
+    --csnt-font-display: inherit;                       /* headings */
+    --csnt-font-ui: inherit;                            /* buttons, captions */
+
+    /* Button, label and heading typography */
+    --csnt-btn-size: 0.8125rem;
+    --csnt-btn-weight: 600;
+    --csnt-btn-tracking: 0.01em;
+    --csnt-btn-transform: none;
+    --csnt-label-tracking: 0.08em;                      /* the small captions */
+    --csnt-label-transform: uppercase;
+    --csnt-title-weight: 700;
+    --csnt-title-tracking: -0.01em;
+
+    /* Mechanics */
+    --csnt-z: 2147483000;                               /* above everything; mechanics, not a look */
+}
+```
+
+The banner is a card in the bottom-left corner, the settings panel in the opposite one.
 
 **Dark mode is opt-in.** Set `data-consent-theme="dark"` on `<html>` for always dark, or `"auto"` to
 follow the operating system. Without it the banner stays light, because a widget that follows
 `prefers-color-scheme` on its own puts a dark dialog on a light site.
+
+**Your tokens win over the dark theme, in both directions.** The three token blocks in the shipped
+stylesheet sit in a `@layer`, and unlayered CSS beats every layer — so a plain `:root { --csnt-brand:
+… }` of yours survives dark mode instead of being silently replaced by it. The flip side is that it
+survives *literally*: if you set a dark accent and then switch dark mode on, it stays dark on dark.
+Give the dark theme its own values when you use one:
+
+```css
+:root { --csnt-brand: #14504A; --csnt-brand-ink: #FBFCFA; }
+
+:root[data-consent-theme="dark"] { --csnt-brand: #7FB8AF; --csnt-brand-ink: #0C1F1C; }
+
+@media (prefers-color-scheme: dark) {
+    :root[data-consent-theme="auto"] { --csnt-brand: #7FB8AF; --csnt-brand-ink: #0C1F1C; }
+}
+```
 
 ![The dialog in a dark theme](docs/dialog-dark.png)
 

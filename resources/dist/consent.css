@@ -1,13 +1,19 @@
 /**
  * Statamic Consent — default styling.
  *
- * The shape is the one adriangoldner.com established and that its visitors
- * already know: a card in the bottom-left corner rather than a bar across the
- * page, a settings panel in the opposite corner rather than a modal over the
- * content, pill buttons in a spaced uppercase mono, and generous corner radii.
+ * A card in the bottom-left corner rather than a bar across the page, and a
+ * settings panel in the opposite corner rather than a modal over the content.
  *
- * Everything is a custom property, so a theme restyles it by setting tokens
- * instead of overriding rules. Set `assets.styles` to false in the config to
+ * The look is deliberately unremarkable: near-black on near-white, a modest
+ * radius, ordinary sentence-case buttons, and no font of its own. An unstyled
+ * banner should read as *plain*, never as somebody else's brand. Until 1.5.0
+ * it did the latter — it shipped one particular site's yellow, cream and pill
+ * buttons to every installation.
+ *
+ * Everything that is a look is a custom property, so a theme restyles it by
+ * setting tokens instead of overriding rules. The token blocks sit in a
+ * cascade layer, which means any unlayered `:root { --csnt-… }` on the host
+ * site wins — including over the dark-mode block. Set `assets.styles` to false in the config to
  * drop this file entirely; the class names are the documented contract either
  * way.
  *
@@ -24,78 +30,142 @@
   display: none !important;
 }
 
-:root {
-  /* Ground and ink */
-  --csnt-surface: #FFFFFF;
-  --csnt-surface-sunken: #FAF8F4;
-  --csnt-surface-muted: #F3F0EA;
-  --csnt-surface-muted-line: #EAE6DE;
-  --csnt-ink: #141210;
-  --csnt-ink-soft: #44403C;
-  --csnt-muted: #78716C;
-  --csnt-faint: #A8A29E;
-  --csnt-line: rgba(20, 18, 16, 0.10);
-
-  /* The one accent. Everything else is neutral. */
-  --csnt-brand: #E8B931;
-  --csnt-brand-hover: #F5D04A;
-  --csnt-brand-ink: #141210;
-  --csnt-brand-deep: #A67D14;
-
-  /* Form */
-  --csnt-radius-card: 2.5rem;
-  --csnt-radius-panel: 1.5rem;
-  --csnt-radius-inner: 0.75rem;
-  --csnt-shadow-card: 0 32px 64px -24px rgba(20, 18, 16, 0.14);
-  --csnt-shadow-panel: 0 32px 64px -24px rgba(20, 18, 16, 0.18);
-
-  /* Type. Inherited from the site unless the theme points these elsewhere. */
-  --csnt-font: inherit;
-  --csnt-font-display: inherit;
-  --csnt-font-ui: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-
-  --csnt-z: 2147483000;
-}
-
-/* Dark mode is opt-in, never automatic.
+/* The defaults are **neutral on purpose**.
  *
- * Following prefers-color-scheme on its own produces a dark banner on a light
- * site for every visitor whose system is dark — the widget would be deciding
- * the page's palette, which is not its call. The theme says what it wants:
+ * A consent banner appears on somebody else's website, in front of everything
+ * else, and it is the first thing a visitor sees. A shipped palette with an
+ * opinion is therefore not a nice touch: it puts one site's identity on every
+ * other site that installs this addon. This one used to default to a specific
+ * yellow, a warm cream and a 40px corner radius — recognisably one particular
+ * brand, on every customer's page.
  *
- *   <html data-consent-theme="dark">   always dark
- *   <html data-consent-theme="auto">   follow the operating system
+ * So the ground is plain, the accent is the same near-black as the text, and the
+ * shape is unremarkable. It looks like it belongs, and it looks like nobody in
+ * particular. Every value below is a custom property because the point is that a
+ * site overrides them; see "Making it yours" in the README.
+ */
+/* The three token blocks below sit in a cascade layer on purpose.
  *
- * and a theme that already has its own switch simply overrides the tokens. */
-:root[data-consent-theme="dark"] {
-  --csnt-surface: #1E1C19;
-  --csnt-surface-sunken: #141210;
-  --csnt-surface-muted: #2E2B27;
-  --csnt-surface-muted-line: #44403C;
-  --csnt-ink: #FAF8F4;
-  --csnt-ink-soft: #DDD8CF;
-  --csnt-muted: #A8A29E;
-  --csnt-faint: #78716C;
-  --csnt-line: rgba(250, 248, 244, 0.12);
-  --csnt-shadow-card: 0 32px 64px -24px rgba(0, 0, 0, 0.55);
-  --csnt-shadow-panel: 0 32px 64px -24px rgba(0, 0, 0, 0.6);
-}
+ * Unlayered CSS beats every layer, whatever the specificity or the order. So a
+ * host that writes a plain `:root { --csnt-brand: … }` in its own stylesheet
+ * wins over all three — including the dark block, whose `:root[data-consent-
+ * theme="dark"]` would otherwise outrank it (0,1,1 against 0,1,0) and quietly
+ * delete the host's brand the moment dark mode is switched on.
+ *
+ * The component rules further down are deliberately NOT in the layer: those
+ * are the widget's own mechanics and should not lose to a stray host rule. */
+@layer csnt-theme {
+  :root {
+    /* Ground and ink */
+    --csnt-surface: #FFFFFF;
+    --csnt-surface-sunken: #F7F7F6;
+    --csnt-surface-muted: #F1F1F0;
+    --csnt-surface-muted-line: #E6E6E4;
+    --csnt-ink: #17171A;
+    --csnt-ink-soft: #45454B;
+    --csnt-muted: #71717A;
+    --csnt-faint: #A1A1AA;
+    --csnt-line: rgba(23, 23, 26, 0.10);
 
-@media (prefers-color-scheme: dark) {
-  :root[data-consent-theme="auto"] {
-    --csnt-surface: #1E1C19;
-    --csnt-surface-sunken: #141210;
-    --csnt-surface-muted: #2E2B27;
-    --csnt-surface-muted-line: #44403C;
-    --csnt-ink: #FAF8F4;
-    --csnt-ink-soft: #DDD8CF;
-    --csnt-muted: #A8A29E;
-    --csnt-faint: #78716C;
-    --csnt-line: rgba(250, 248, 244, 0.12);
-    --csnt-shadow-card: 0 32px 64px -24px rgba(0, 0, 0, 0.55);
-    --csnt-shadow-panel: 0 32px 64px -24px rgba(0, 0, 0, 0.6);
+    /* The one accent, and it is deliberately not a colour.
+     *
+     * A dark button with light text reads as "this site's own button" on almost
+     * any design. A hue would read as somebody else's. */
+    --csnt-brand: #17171A;
+    --csnt-brand-hover: #34343A;
+    --csnt-brand-ink: #FFFFFF;
+    --csnt-brand-deep: #45454B;
+
+    /* Form */
+    --csnt-radius-card: 1rem;
+    --csnt-radius-panel: 0.875rem;
+    --csnt-radius-inner: 0.5rem;
+    /* Buttons and switches. These used to be hard-coded at 999px, so every site
+       that installed this addon got pill-shaped buttons whether or not its own
+       buttons were pills. A shape is an opinion; it belongs to the host. */
+    --csnt-radius-button: 0.5rem;
+    --csnt-radius-pill: 999px;
+
+    /* Button labels. Formerly hard-coded as 10px, widely tracked capitals — a
+       handwriting, and not the host's. The default now is simply the size a
+       button has when it isn't trying to be noticed. */
+    --csnt-btn-size: 0.8125rem;
+    --csnt-btn-weight: 600;
+    --csnt-btn-tracking: 0.01em;
+    --csnt-btn-transform: none;
+    --csnt-label-tracking: 0.08em;
+    --csnt-label-transform: uppercase;
+
+    /* Headings. The tight tracking below is an optical setting for one specific
+       grotesque; on a serif it is somebody else's opinion, so it is a token. */
+    --csnt-title-weight: 700;
+    --csnt-title-tracking: -0.01em;
+    --csnt-shadow-card: 0 20px 44px -20px rgba(23, 23, 26, 0.18);
+    --csnt-shadow-panel: 0 20px 44px -20px rgba(23, 23, 26, 0.22);
+    --csnt-shadow-knob: 0 1px 2px rgba(0, 0, 0, 0.25);
+
+    /* Type. Inherited from the site unless the theme points these elsewhere. */
+    --csnt-font: inherit;
+    --csnt-font-display: inherit;
+    /* Captions and button labels used to default to monospace. That is a strong
+       look and it was one site's, so this inherits too. */
+    --csnt-font-ui: inherit;
+
+    --csnt-z: 2147483000;
+  }
+
+  /* Dark mode is opt-in, never automatic.
+   *
+   * Following prefers-color-scheme on its own produces a dark banner on a light
+   * site for every visitor whose system is dark — the widget would be deciding
+   * the page's palette, which is not its call. The theme says what it wants:
+   *
+   *   <html data-consent-theme="dark">   always dark
+   *   <html data-consent-theme="auto">   follow the operating system
+   *
+   * and a theme that already has its own switch simply overrides the tokens. */
+  :root[data-consent-theme="dark"] {
+    --csnt-surface: #1D1D20;
+    --csnt-surface-sunken: #141416;
+    --csnt-surface-muted: #2B2B30;
+    --csnt-surface-muted-line: #45454B;
+    --csnt-ink: #F7F7F6;
+    --csnt-ink-soft: #D8D8DC;
+    --csnt-muted: #A1A1AA;
+    --csnt-faint: #71717A;
+    --csnt-line: rgba(247, 247, 246, 0.12);
+    /* Light on dark, the other way round from the light theme. */
+    --csnt-brand: #F7F7F6;
+    --csnt-brand-hover: #FFFFFF;
+    --csnt-brand-ink: #17171A;
+    --csnt-brand-deep: #D8D8DC;
+    --csnt-shadow-card: 0 20px 44px -20px rgba(0, 0, 0, 0.6);
+    --csnt-shadow-panel: 0 20px 44px -20px rgba(0, 0, 0, 0.65);
+    --csnt-shadow-knob: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root[data-consent-theme="auto"] {
+      --csnt-surface: #1D1D20;
+      --csnt-surface-sunken: #141416;
+      --csnt-surface-muted: #2B2B30;
+      --csnt-surface-muted-line: #45454B;
+      --csnt-ink: #F7F7F6;
+      --csnt-ink-soft: #D8D8DC;
+      --csnt-muted: #A1A1AA;
+      --csnt-faint: #71717A;
+      --csnt-line: rgba(247, 247, 246, 0.12);
+      --csnt-brand: #F7F7F6;
+      --csnt-brand-hover: #FFFFFF;
+      --csnt-brand-ink: #17171A;
+      --csnt-brand-deep: #D8D8DC;
+      --csnt-shadow-card: 0 20px 44px -20px rgba(0, 0, 0, 0.6);
+      --csnt-shadow-panel: 0 20px 44px -20px rgba(0, 0, 0, 0.65);
+      --csnt-shadow-knob: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
   }
 }
+
 
 .csnt,
 .csnt-banner,
@@ -133,9 +203,9 @@
 .csnt-banner__title {
   font-family: var(--csnt-font-display);
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: var(--csnt-title-weight);
   line-height: 1.2;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--csnt-title-tracking);
   margin: 0;
   color: var(--csnt-ink);
 }
@@ -179,12 +249,12 @@
   width: 100%;
   padding: 0.75rem 1.5rem;
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: var(--csnt-radius-button);
   font-family: var(--csnt-font-ui);
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  font-size: var(--csnt-btn-size);
+  font-weight: var(--csnt-btn-weight);
+  letter-spacing: var(--csnt-btn-tracking);
+  text-transform: var(--csnt-btn-transform);
   line-height: 1.2;
   cursor: pointer;
   transition: background-color .5s cubic-bezier(.76,0,.24,1), border-color .5s cubic-bezier(.76,0,.24,1);
@@ -215,7 +285,10 @@
   color: var(--csnt-ink);
 }
 
-.csnt-btn--secondary:hover { background: var(--csnt-brand); border-color: var(--csnt-brand); }
+/* Not --csnt-brand: in the neutral defaults brand and ink are the same value,
+   so the label would vanish into the button. A hover is a nudge, not a state
+   change. */
+.csnt-btn--secondary:hover { background: var(--csnt-surface-muted-line); border-color: var(--csnt-surface-muted-line); }
 
 @media (min-width: 30rem) {
   .csnt-banner__actions { flex-direction: row; }
@@ -232,8 +305,8 @@
   font-family: var(--csnt-font-ui);
   font-size: 0.75rem;
   font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: var(--csnt-label-tracking);
+  text-transform: var(--csnt-label-transform);
   color: var(--csnt-muted);
   text-decoration: none;
   cursor: pointer;
@@ -276,9 +349,9 @@
 .csnt-panel__title {
   font-family: var(--csnt-font-display);
   font-size: 1.125rem;
-  font-weight: 700;
+  font-weight: var(--csnt-title-weight);
   line-height: 1.3;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--csnt-title-tracking);
   margin: 0;
 }
 
@@ -291,7 +364,7 @@
   height: 1.75rem;
   flex: none;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--csnt-radius-pill);
   background: none;
   color: var(--csnt-muted);
   cursor: pointer;
@@ -343,8 +416,8 @@
   flex: none;
   font-family: var(--csnt-font-ui);
   font-size: 0.625rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: var(--csnt-label-tracking);
+  text-transform: var(--csnt-label-transform);
   color: var(--csnt-faint);
   white-space: nowrap;
   padding-top: 0.2rem;
@@ -371,7 +444,7 @@
   width: 2.75rem;
   height: 1.5rem;
   padding: 2px;
-  border-radius: 999px;
+  border-radius: var(--csnt-radius-pill);
   background: var(--csnt-surface-muted-line);
   transition: background-color .2s ease-in-out;
 }
@@ -380,9 +453,9 @@
   display: block;
   width: 1.25rem;
   height: 1.25rem;
-  border-radius: 999px;
+  border-radius: var(--csnt-radius-pill);
   background: var(--csnt-surface);
-  box-shadow: 0 1px 2px rgba(20, 18, 16, 0.25);
+  box-shadow: var(--csnt-shadow-knob);
   transition: transform .2s ease-in-out;
 }
 
@@ -405,10 +478,14 @@
   flex: 1 1 0;
   padding: 0.5rem 0.75rem;
   border: 1px solid transparent;
-  border-radius: 999px;
-  font-family: var(--csnt-font);
-  font-size: 0.6875rem;
-  font-weight: 600;
+  /* These are buttons, whatever the class name says — the panel footer's
+     accept/save/reject. They take the host's button shape, not the pill. */
+  border-radius: var(--csnt-radius-button);
+  font-family: var(--csnt-font-ui);
+  font-size: var(--csnt-btn-size);
+  font-weight: var(--csnt-btn-weight);
+  letter-spacing: var(--csnt-btn-tracking);
+  text-transform: var(--csnt-btn-transform);
   line-height: 1.3;
   cursor: pointer;
   transition: background-color .2s ease, border-color .2s ease;
@@ -434,7 +511,7 @@
   height: 100%;
   overflow: hidden;
   border: 1px solid var(--csnt-line);
-  border-radius: var(--csnt-radius-card);
+  border-radius: var(--csnt-radius-inner);
   background: var(--csnt-surface-sunken);
   text-align: center;
 }
@@ -451,7 +528,7 @@
   padding: 2rem;
 }
 
-.csnt-gate__title { font-family: var(--csnt-font-display); font-size: 1.125rem; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+.csnt-gate__title { font-family: var(--csnt-font-display); font-size: 1.125rem; font-weight: var(--csnt-title-weight); letter-spacing: var(--csnt-title-tracking); margin: 0; }
 .csnt-gate__message { margin: 0; font-size: 0.875rem; line-height: 1.55; color: var(--csnt-muted); }
 .csnt-gate__policy { font-size: 0.75rem; color: var(--csnt-brand-deep); text-decoration: underline; text-underline-offset: 2px; }
 
@@ -470,7 +547,7 @@
 
 @media (max-width: 30rem) {
   .csnt-banner { bottom: 1rem; left: 1rem; width: calc(100% - 2rem); }
-  .csnt-banner__card { padding: 1.5rem; border-radius: 2rem; }
+  .csnt-banner__card { padding: 1.5rem; }
   .csnt-banner__title { font-size: 1.25rem; }
   .csnt-panel { right: 1rem; left: 1rem; bottom: 1rem; width: auto; max-width: none; max-height: calc(100vh - 2rem); }
   .csnt-panel__footer { flex-wrap: wrap; }

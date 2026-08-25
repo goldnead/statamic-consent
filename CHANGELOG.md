@@ -1,5 +1,54 @@
 # Changelog
 
+## 1.5.0
+
+### What's changed
+
+- **The banner no longer arrives wearing someone else's brand.** The stylesheet's defaults were,
+  literally, one particular website's identity: a warm yellow (`#E8B931`), a cream ground
+  (`#FAF8F4`), a 40px corner radius, pill-shaped buttons and tiny wide-spaced capitals. Every site
+  that installed this addon got that look on its own pages until it overrode it. The defaults are
+  now neutral — near-black on near-white, a 16px radius, ordinary sentence-case buttons — so an
+  un-themed banner reads as *plain*, not as *foreign*.
+
+  This is a **visual breaking change** for anyone who relied on the old look. Restore it by setting
+  the tokens yourself; the README's "Making it yours" section starts with exactly this.
+
+### What's new
+
+- **The shape and the label style are tokens now**, not hard-coded values. Previously only colour
+  and type family were yours; the round buttons and the spaced capitals were the addon's opinion and
+  could only be undone with `!important`. New custom properties:
+  `--csnt-radius-button`, `--csnt-radius-pill`, `--csnt-btn-size`, `--csnt-btn-weight`,
+  `--csnt-btn-tracking`, `--csnt-btn-transform`, `--csnt-label-tracking`, `--csnt-label-transform`,
+  `--csnt-title-weight`, `--csnt-title-tracking`, `--csnt-shadow-knob`.
+
+- **Your tokens now survive dark mode.** The three token blocks moved into a `@layer`, and unlayered
+  CSS beats every layer regardless of specificity. Before this, `:root[data-consent-theme="dark"]`
+  (0,1,1) outranked a host's plain `:root` (0,1,0), so a site that had themed the banner watched its
+  brand disappear the moment dark mode was switched on — visible in light, gone in dark. The
+  component rules are deliberately **not** layered; those are the widget's mechanics.
+
+### What's fixed
+
+- **The secondary button became unreadable on hover.** `.csnt-btn--secondary:hover` set its
+  background to `--csnt-brand` while leaving the label at `--csnt-ink`. In the new neutral defaults
+  those two are the same value, so the label vanished into the button. It now lifts to
+  `--csnt-surface-muted-line`, which is what the equivalent rule in the panel footer already did.
+
+- **A hard-coded `border-radius: 2rem` under 30rem** overrode `--csnt-radius-card` on phones, so a
+  site with square corners still got the old rounded card on mobile and could not fix it with a
+  token. Removed.
+
+- **`--csnt-radius-inner` was documented and defined but never used.** It now styles the blocked-embed
+  placeholder, which is what its name promised.
+
+- **The switch knob's shadow was the only hard-coded colour left**, and it was the old warm palette's
+  (`rgba(20, 18, 16, …)`). It is `--csnt-shadow-knob` now, with a value per theme.
+
+- Three defaults were quoted wrongly in the README. A new test compares every documented token
+  against the stylesheet, so the table cannot drift again.
+
 ## 1.4.1
 
 ### What's fixed
