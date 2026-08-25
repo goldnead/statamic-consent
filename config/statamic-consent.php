@@ -28,16 +28,18 @@ return [
     | Behaviour
     |--------------------------------------------------------------------------
     |
-    | "reject_on_dismiss" decides what a closed banner means. Keep it true: under
-    | the GDPR, no decision is a rejection, and a banner that can only be
-    | accepted is not a choice.
+    | What a closed banner means is not configurable, and that is deliberate.
+    | Closing without deciding brings the banner back; nothing is stored and no
+    | service unlocks. Under the GDPR no decision is not consent, so a setting
+    | that let a site treat it as one would be a setting for breaking the law.
+    | (Until 1.6.0 a `reject_on_dismiss` key sat here and did nothing at all —
+    | the behaviour was always the strict one.)
     |
     | "respect_gpc" honours the Global Privacy Control browser signal, which
     | German courts have read as a valid objection.
     |
     */
 
-    'reject_on_dismiss' => true,
     'respect_gpc' => true,
 
     /*

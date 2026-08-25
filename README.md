@@ -114,7 +114,6 @@ missing value, and the addon does not hand back what someone removed.
 | `cookie.days` | `182` | Longer than 12 months is not defensible under the GDPR. |
 | `cookie.same_site` | `Lax` | `None` without `Secure` makes browsers drop the cookie entirely. |
 | `version` | `1` | Raise it when you add a non-essential service. Leaving it lets an old yes cover something the visitor never saw. |
-| `reject_on_dismiss` | `true` | Setting it false treats a closed banner as consent, which it is not. |
 | `respect_gpc` | `true` | Honours the Global Privacy Control signal, which German courts have read as a valid objection. |
 | `assets.styles` | `true` | Off means you ship your own CSS against the class names below. |
 | `assets.scripts` | `true` | Off disables the addon entirely; nothing unlocks. |

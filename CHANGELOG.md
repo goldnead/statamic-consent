@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.6.0
+
+### Removed
+
+- **`reject_on_dismiss` is gone, because it never did anything.** The key was read from the config,
+  handed to the browser on every page as `rejectOnDismiss`, and the script never looked at it once.
+  The behaviour was hard-wired all along — and to the strict reading: closing the dialog without
+  deciding brings the banner back, stores nothing and unlocks nothing.
+
+  In effect nothing changes. What changes is the promise: the config file and the README both
+  described a switch, so a site that set it to `false` believed it had changed something. Under the
+  GDPR no decision is not consent, so the only value that setting could legitimately have had was
+  the one that was already hard-wired. Removing it is the honest version, and
+  `tests/Feature/DismissIsNotConsentTest.php` now pins the behaviour that actually exists.
+
 ## 1.5.0
 
 ### What's changed

@@ -171,7 +171,6 @@ class Registry
                 'sameSite' => (string) config('statamic-consent.cookie.same_site', 'Lax'),
                 'secure' => request()->isSecure(),
             ],
-            'rejectOnDismiss' => (bool) config('statamic-consent.reject_on_dismiss', true),
             'respectGpc' => (bool) config('statamic-consent.respect_gpc', true),
             'required' => $this->requiredHandles(),
             'categories' => $this->categories(),
