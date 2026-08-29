@@ -46,4 +46,26 @@ return [
         'vimeo' => ['description' => 'Embedded videos from Vimeo.'],
         'google_maps' => ['description' => 'Embedded maps from Google Maps.'],
     ],
+
+    // Metrics for the Insights dashboard. They count decisions, never people:
+    // `consent_id` is a cookie token, not a human being.
+    'metric_group' => 'Consent',
+    'metric_decisions' => 'Decisions',
+    'metric_decisions_description' => 'How many cookie decisions were made in the period. The decision is counted, not the person.',
+    'metric_breakdown_version' => 'Version',
+    'metric_breakdown_how' => 'Kind of decision',
+    'metric_breakdown_site' => 'Site',
+    'metric_no_version' => 'No version',
+    'metric_no_how' => 'Not stated',
+    'metric_no_site' => 'No site',
+    'metric_version_label' => 'Version :version',
+    'metric_how' => [
+        'accept_all' => 'Accepted everything',
+        'necessary_only' => 'Essential only',
+        'reject_all' => 'Rejected everything',
+        'custom' => 'Own selection',
+        'gate' => 'Individual content allowed',
+        'gpc' => 'Global Privacy Control',
+        'unknown' => 'Unknown',
+    ],
 ];

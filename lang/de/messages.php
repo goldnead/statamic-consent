@@ -46,4 +46,26 @@ return [
         'vimeo' => ['description' => 'Eingebettete Videos von Vimeo.'],
         'google_maps' => ['description' => 'Eingebettete Karten von Google Maps.'],
     ],
+
+    // Kennzahlen fuers Insights-Dashboard. Sie zaehlen Entscheidungen, nie
+    // Menschen: `consent_id` ist ein Cookie-Token, kein Mensch.
+    'metric_group' => 'Einwilligung',
+    'metric_decisions' => 'Entscheidungen',
+    'metric_decisions_description' => 'Wie viele Cookie-Entscheidungen im Zeitraum getroffen wurden. Gezaehlt wird die Entscheidung, nicht die Person.',
+    'metric_breakdown_version' => 'Fassung',
+    'metric_breakdown_how' => 'Art der Entscheidung',
+    'metric_breakdown_site' => 'Site',
+    'metric_no_version' => 'Ohne Fassung',
+    'metric_no_how' => 'Ohne Angabe',
+    'metric_no_site' => 'Ohne Site',
+    'metric_version_label' => 'Fassung :version',
+    'metric_how' => [
+        'accept_all' => 'Alles akzeptiert',
+        'necessary_only' => 'Nur notwendige',
+        'reject_all' => 'Alles abgelehnt',
+        'custom' => 'Eigene Auswahl',
+        'gate' => 'Einzelne Inhalte freigegeben',
+        'gpc' => 'Global Privacy Control',
+        'unknown' => 'Unbekannt',
+    ],
 ];
