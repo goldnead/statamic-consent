@@ -169,6 +169,24 @@ class InsightsMetricsTest extends TestCase
         return $keyed;
     }
 
+    /**
+     * Does the split run from the largest figure down?
+     *
+     * That is what the metric promises. Which of two *equal* figures comes
+     * first is settled by the key, not by the split's own claim, so a test
+     * about the figures must not also pin their order.
+     *
+     * @param  array<int, array{key: string|null, value: int|float}>  $rows
+     */
+    protected function valuesDescend(array $rows): bool
+    {
+        $values = array_column($rows, 'value');
+        $sorted = $values;
+        rsort($sorted);
+
+        return $values === $sorted;
+    }
+
     // -- The number ---------------------------------------------------------
 
     /** Four decisions in the window, and the July one is not one of them. */
@@ -267,7 +285,11 @@ class InsightsMetricsTest extends TestCase
         $this->assertSame('default', $zeilen[0]['key']);
         $this->assertSame(2, $zeilen[0]['value']);
 
-        $this->assertSame(['default' => 2, 'de' => 1, '' => 1], $this->keyed($zeilen));
+        // assertEquals, not assertSame: the figures are the claim here. `de`
+        // and the site-less row both stand at 1, and which of the two comes
+        // first is the key's business, not this test's.
+        $this->assertEquals(['default' => 2, 'de' => 1, '' => 1], $this->keyed($zeilen));
+        $this->assertTrue($this->valuesDescend($zeilen), 'the split runs from the largest figure down.');
 
         $ohneSite = array_values(array_filter($zeilen, fn (array $zeile) => $zeile['key'] === null));
 
@@ -294,7 +316,9 @@ class InsightsMetricsTest extends TestCase
 
         $nachArt = $metrik->breakdown($this->frage(), 'how');
 
-        $this->assertSame(['accept_all' => 2, 'reject_all' => 1, 'custom' => 1], $this->keyed($nachArt));
+        // Same as above: `reject_all` and `custom` both stand at 1.
+        $this->assertEquals(['accept_all' => 2, 'reject_all' => 1, 'custom' => 1], $this->keyed($nachArt));
+        $this->assertTrue($this->valuesDescend($nachArt), 'the split runs from the largest figure down.');
         $this->assertSame(4, array_sum(array_column($nachArt, 'value')));
     }
 
