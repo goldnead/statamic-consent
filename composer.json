@@ -28,7 +28,7 @@
       "description": "Cookie consent banner and two-click embed gate, editable in the control panel.",
       "url": "https://github.com/goldnead/statamic-consent",
       "developer": "Adrian Goldner",
-      "developer-url": "https://gldnr.studio"
+      "developer-url": "https://adriangoldner.dev"
     },
     "laravel": {
       "providers": [
