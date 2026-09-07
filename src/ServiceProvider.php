@@ -2,10 +2,13 @@
 
 namespace Goldnead\StatamicConsent;
 
+use Goldnead\BrandContext\Settings\SettingsRegistry;
 use Goldnead\StatamicConsent\Integrations\Insights\Decisions;
 use Goldnead\StatamicConsent\Support\Registry;
+use Goldnead\StatamicConsent\Support\Settings;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Support\Facades\Log;
+use Statamic\Facades\Permission;
 use Statamic\Providers\AddonServiceProvider;
 use Throwable;
 
@@ -53,9 +56,29 @@ class ServiceProvider extends AddonServiceProvider
         $this->app->scoped(Registry::class);
     }
 
+    /**
+     * In `boot()`, nicht in `bootAddon()`, und das ist keine Stilfrage.
+     *
+     * brand-context legt die gespeicherten Werte aus einem `app->booted()`
+     * auf die Config, absichtlich erst dann, damit jedes Provider-`boot()`
+     * seine Anmeldung hinter sich hat. `bootAddon()` läuft selbst aus einem
+     * `app->booted()` (Statamics AddonServiceProvider), und welches der
+     * beiden zuerst feuert, hängt an der Ladereihenfolge der Pakete: eine
+     * Anmeldung von dort würde auf manchen Installationen wirken und auf
+     * anderen nicht, ohne dass etwas auf dem Bildschirm sagt, auf welchen.
+     */
+    public function boot(): void
+    {
+        parent::boot();
+
+        app(SettingsRegistry::class)->register(Settings::class);
+    }
+
     public function bootAddon()
     {
         $this->loadTranslationsFrom(__DIR__.'/../lang', 'statamic-consent');
+
+        $this->bootPermissions();
 
         $this->registerInsightsMetrics();
 
@@ -101,6 +124,25 @@ class ServiceProvider extends AddonServiceProvider
         $this->publishes([
             __DIR__.'/../lang' => lang_path('vendor/statamic-consent'),
         ], 'statamic-consent-translations');
+    }
+
+    /**
+     * Das Recht, das den Abschnitt dieses Addons auf der geteilten
+     * Einstellungsseite freigibt.
+     *
+     * Neu vergeben, nicht umbenannt: dieses Addon hatte bisher gar kein Recht,
+     * also nimmt niemandem etwas weg. Ohne die Registrierung hier ließe sich
+     * das Recht in keiner Benutzergruppe vergeben und nur ein Super-Admin käme
+     * an die Seite.
+     */
+    protected function bootPermissions(): void
+    {
+        Permission::extend(function (): void {
+            Permission::group('statamic-consent', __('statamic-consent::settings.permission_group'), function (): void {
+                Permission::register('manage consent settings')
+                    ->label(__('statamic-consent::settings.permission_manage'));
+            });
+        });
     }
 
     /**
