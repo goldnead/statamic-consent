@@ -24,3 +24,7 @@
 # The browser test harness. /tests is already ignored above.
 /package.json       export-ignore
 /package-lock.json  export-ignore
+
+# Internal listing files: not needed by installing sites.
+/art                export-ignore
+/MARKETPLACE.md    export-ignore
