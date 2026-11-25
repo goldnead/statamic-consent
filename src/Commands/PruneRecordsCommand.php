@@ -24,13 +24,21 @@ class PruneRecordsCommand extends Command
 
         $days = config('statamic-consent.record.keep_days');
 
-        if (! is_numeric($days)) {
-            // Keeping everything forever is a choice a site can make, but it is
-            // the opposite of data minimisation and should not happen by an
-            // unattended command quietly doing nothing.
+        // Null is the documented "keep everything" choice in the config. Keeping
+        // everything forever is the opposite of data minimisation, so it is said
+        // out loud, but it is a deliberate setting and not an error.
+        if ($days === null) {
             $this->components->warn('record.keep_days is not set, so nothing is ever deleted. Set it, or accept that this log grows without end.');
 
             return self::SUCCESS;
+        }
+
+        // Anything else that is not a retention in days is a mistake. An unattended
+        // run must fail visibly rather than report success while doing nothing.
+        if (! is_numeric($days) || $days < 0) {
+            $this->components->error('record.keep_days must be a number of days, 0 or more. Nothing was deleted. Fix the config and run the command again.');
+
+            return self::FAILURE;
         }
 
         $deleted = $recorder->prune();

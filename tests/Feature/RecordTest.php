@@ -206,6 +206,17 @@ class RecordTest extends TestCase
     }
 
     #[Test]
+    public function pruning_refuses_a_negative_retention_instead_of_deleting_everything(): void
+    {
+        config(['statamic-consent.record.keep_days' => -5]);
+
+        ConsentRecord::create(['consent_id' => 'frisch', 'version' => 1, 'granted' => [], 'how' => 'gate', 'decided_at' => now()]);
+
+        $this->assertSame(0, $this->recorder()->prune());
+        $this->assertSame(1, ConsentRecord::count());
+    }
+
+    #[Test]
     public function pruning_deletes_nothing_without_a_retention(): void
     {
         config(['statamic-consent.record.keep_days' => null]);
