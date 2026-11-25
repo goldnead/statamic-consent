@@ -238,8 +238,8 @@ class RecordTest extends TestCase
 
         $this->assertNull($this->recorder()->record($request));
 
-        Log::shouldHaveReceived('info')
-            ->withArgs(fn (string $message, array $context = []): bool => ($context['reason'] ?? null) === 'no_cookie'
+        Log::shouldHaveReceived('log')
+            ->withArgs(fn (string $level, string $message, array $context = []): bool => $level === 'debug' && ($context['reason'] ?? null) === 'no_cookie'
                 && ! str_contains(json_encode($context), '203.0.113.7'))
             ->once();
     }
@@ -252,8 +252,8 @@ class RecordTest extends TestCase
 
         $this->recorder()->record($this->requestWith($this->decision()));
 
-        Log::shouldHaveReceived('info')
-            ->withArgs(fn (string $message, array $context = []): bool => ($context['reason'] ?? null) === 'disabled')
+        Log::shouldHaveReceived('log')
+            ->withArgs(fn (string $level, string $message, array $context = []): bool => $level === 'debug' && ($context['reason'] ?? null) === 'disabled')
             ->once();
     }
 
@@ -264,8 +264,8 @@ class RecordTest extends TestCase
 
         $this->recorder()->record($this->requestWith($this->decision(['id' => str_repeat('x', 65)])));
 
-        Log::shouldHaveReceived('warning')
-            ->withArgs(fn (string $message, array $context = []): bool => ($context['reason'] ?? null) === 'invalid_id')
+        Log::shouldHaveReceived('log')
+            ->withArgs(fn (string $level, string $message, array $context = []): bool => $level === 'warning' && ($context['reason'] ?? null) === 'invalid_id')
             ->once();
         $this->assertSame(0, ConsentRecord::count());
     }

@@ -35,7 +35,7 @@ class Recorder
     public function record(Request $request): ?ConsentRecord
     {
         if (! $this->enabled()) {
-            return $this->nothingStored('disabled');
+            return $this->nothingStored('disabled', 'debug');
         }
 
         $decision = $this->registry->rawDecision($request);
@@ -44,7 +44,12 @@ class Recorder
             // Logged, never returned to the caller: the endpoint still answers 204.
             $cookie = config('statamic-consent.cookie.name', 'statamic_consent');
 
-            return $this->nothingStored($request->cookie((string) $cookie) === null ? 'no_cookie' : 'unreadable_or_outdated');
+            // A missing cookie is the ordinary cross-site or bot request on a public
+            // endpoint: debug, not info, or it floods the log. A cookie that is
+            // there but unreadable is worth an info line.
+            return $request->cookie((string) $cookie) === null
+                ? $this->nothingStored('no_cookie', 'debug')
+                : $this->nothingStored('unreadable_or_outdated');
         }
 
         $id = $decision['id'] ?? null;
@@ -85,11 +90,7 @@ class Recorder
     {
         $context = ['reason' => $reason];
 
-        if ($level === 'warning') {
-            Log::warning('statamic-consent: nothing stored', $context);
-        } else {
-            Log::info('statamic-consent: nothing stored', $context);
-        }
+        Log::log($level, 'statamic-consent: nothing stored', $context);
 
         return null;
     }
