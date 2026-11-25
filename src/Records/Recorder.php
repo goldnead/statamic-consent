@@ -5,6 +5,7 @@ namespace Goldnead\StatamicConsent\Records;
 use Goldnead\StatamicConsent\Support\Registry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Statamic\Facades\Site;
 
 /**
@@ -34,19 +35,27 @@ class Recorder
     public function record(Request $request): ?ConsentRecord
     {
         if (! $this->enabled()) {
-            return null;
+            return $this->nothingStored('disabled', 'debug');
         }
 
         $decision = $this->registry->rawDecision($request);
 
         if ($decision === null) {
-            return null;
+            // Logged, never returned to the caller: the endpoint still answers 204.
+            $cookie = config('statamic-consent.cookie.name', 'statamic_consent');
+
+            // A missing cookie is the ordinary cross-site or bot request on a public
+            // endpoint: debug, not info, or it floods the log. A cookie that is
+            // there but unreadable is worth an info line.
+            return $request->cookie((string) $cookie) === null
+                ? $this->nothingStored('no_cookie', 'debug')
+                : $this->nothingStored('unreadable_or_outdated');
         }
 
         $id = $decision['id'] ?? null;
 
         if (! is_string($id) || trim($id) === '' || strlen($id) > 64) {
-            return null;
+            return $this->nothingStored('invalid_id', 'warning');
         }
 
         // Only handles this site actually offers. A cookie is under the
@@ -71,6 +80,19 @@ class Recorder
                 'site' => Site::current()->handle(),
             ]
         );
+    }
+
+    /**
+     * Why nothing was stored, for the log. The reason is the only thing written:
+     * no IP, no user agent, no consent id.
+     */
+    protected function nothingStored(string $reason, string $level = 'info'): null
+    {
+        $context = ['reason' => $reason];
+
+        Log::log($level, 'statamic-consent: nothing stored', $context);
+
+        return null;
     }
 
     /**
