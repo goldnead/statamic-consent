@@ -38,14 +38,31 @@ class LookupRecordCommand extends Command
             return self::FAILURE;
         }
 
+        // A consent id of "0" is a real id, so the test is for null, not for truthiness.
         $id = $this->argument('id');
 
-        $records = $id
-            ? ConsentRecord::query()->forConsentId($id)->get()
-            : ConsentRecord::query()->orderByDesc('decided_at')->limit((int) $this->option('latest'))->get();
+        $limit = null;
+        $truncated = false;
+
+        if ($id !== null) {
+            $records = ConsentRecord::query()->forConsentId($id)->get();
+        } else {
+            $limit = filter_var($this->option('latest'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+
+            if ($limit === false) {
+                $this->components->error('--latest braucht eine ganze Zahl ab 1, zum Beispiel --latest=20.');
+
+                return self::FAILURE;
+            }
+
+            // One more than asked for, so a full list can be told apart from a cut one.
+            $found = ConsentRecord::query()->orderByDesc('decided_at')->limit($limit + 1)->get();
+            $truncated = $found->count() > $limit;
+            $records = $found->take($limit)->values();
+        }
 
         if ($records->isEmpty()) {
-            $this->components->warn($id
+            $this->components->warn($id !== null
                 ? 'No record for "'.$id.'".'
                 : 'No records yet.');
 
@@ -61,13 +78,17 @@ class LookupRecordCommand extends Command
             $r->site ?? '—',
         ])->all();
 
+        if ($truncated) {
+            $this->components->warn('Nur die letzten '.$limit.' Einträge. Mit --latest=N mehr anzeigen.');
+        }
+
         if ($path = $this->option('csv')) {
             return $this->writeCsv($path, $rows);
         }
 
         $this->table(['Consent-ID', 'Entschieden am', 'Fassung', 'Wie', 'Erlaubt', 'Site'], $rows);
 
-        if ($id) {
+        if ($id !== null) {
             $this->newLine();
             $this->line('  Die oberste Zeile ist die geltende Entscheidung.');
             $this->line('  <comment>Fassung</comment> belegt, welche Dienste dabei zur Wahl standen.');
@@ -90,14 +111,23 @@ class LookupRecordCommand extends Command
         }
 
         // BOM, because this file is opened in Excel by whoever asked for it.
-        fwrite($handle, "\xEF\xBB\xBF");
-        fputcsv($handle, ['consent_id', 'decided_at', 'version', 'how', 'granted', 'site'], ',', '"', '');
+        // Every write is checked: on a full disk PHP returns false, and the
+        // command must not claim a proof file it could not finish.
+        $ok = @fwrite($handle, "\xEF\xBB\xBF") !== false
+            && @fputcsv($handle, ['consent_id', 'decided_at', 'version', 'how', 'granted', 'site'], ',', '"', '') !== false;
 
         foreach ($rows as $row) {
-            fputcsv($handle, $row, ',', '"', '');
+            $ok = $ok && @fputcsv($handle, $row, ',', '"', '') !== false;
         }
 
-        fclose($handle);
+        $flushed = @fflush($handle);
+        $closed = @fclose($handle);
+
+        if (! $ok || ! $flushed || ! $closed) {
+            $this->components->error('Schreiben nach '.$path.' fehlgeschlagen. Die Datei ist unvollständig, bitte nicht als Beleg verwenden.');
+
+            return self::FAILURE;
+        }
 
         $this->components->info(count($rows).' record(s) written to '.$path);
 

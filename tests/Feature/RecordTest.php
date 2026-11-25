@@ -7,6 +7,9 @@ use Goldnead\StatamicConsent\Records\Recorder;
 use Goldnead\StatamicConsent\Support\Registry;
 use Goldnead\StatamicConsent\Tests\TestCase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use PHPUnit\Framework\Attributes\Test;
 
 class RecordTest extends TestCase
@@ -224,5 +227,80 @@ class RecordTest extends TestCase
 
         $this->assertCount(2, $found);
         $this->assertSame('accept_all', $found->first()->how);
+    }
+
+    #[Test]
+    public function a_request_without_a_cookie_logs_its_reason_and_no_ip(): void
+    {
+        Log::spy();
+
+        $request = Request::create('/!/statamic-consent/record', 'POST', [], [], [], ['REMOTE_ADDR' => '203.0.113.7']);
+
+        $this->assertNull($this->recorder()->record($request));
+
+        Log::shouldHaveReceived('info')
+            ->withArgs(fn (string $message, array $context = []): bool => ($context['reason'] ?? null) === 'no_cookie'
+                && ! str_contains(json_encode($context), '203.0.113.7'))
+            ->once();
+    }
+
+    #[Test]
+    public function a_request_while_the_feature_is_off_logs_its_reason(): void
+    {
+        Log::spy();
+        config(['statamic-consent.record.enabled' => false]);
+
+        $this->recorder()->record($this->requestWith($this->decision()));
+
+        Log::shouldHaveReceived('info')
+            ->withArgs(fn (string $message, array $context = []): bool => ($context['reason'] ?? null) === 'disabled')
+            ->once();
+    }
+
+    #[Test]
+    public function an_invalid_consent_id_is_logged_as_a_warning(): void
+    {
+        Log::spy();
+
+        $this->recorder()->record($this->requestWith($this->decision(['id' => str_repeat('x', 65)])));
+
+        Log::shouldHaveReceived('warning')
+            ->withArgs(fn (string $message, array $context = []): bool => ($context['reason'] ?? null) === 'invalid_id')
+            ->once();
+        $this->assertSame(0, ConsentRecord::count());
+    }
+
+    #[Test]
+    public function a_lost_race_on_the_unique_row_returns_the_stored_record(): void
+    {
+        $at = Carbon::parse('2026-11-01 10:00:00');
+        $decision = $this->decision(['ts' => $at->getTimestampMs(), 'id' => 'rennen']);
+
+        // Another request writes the same decision between our lookup and our insert.
+        $dispatcher = ConsentRecord::getEventDispatcher();
+        $raced = false;
+        ConsentRecord::creating(function () use ($at, &$raced): void {
+            $raced = true;
+            DB::table('consent_records')->insert([
+                'consent_id' => 'rennen',
+                'version' => 1,
+                'granted' => json_encode([]),
+                'how' => 'accept_all',
+                'site' => 'default',
+                'decided_at' => $at,
+                'created_at' => $at,
+            ]);
+        });
+
+        try {
+            $record = $this->recorder()->record($this->requestWith($decision));
+        } finally {
+            $dispatcher->forget('eloquent.creating: '.ConsentRecord::class);
+        }
+
+        $this->assertTrue($raced, 'The insert never ran, so the race was not reproduced.');
+        $this->assertNotNull($record);
+        $this->assertSame('rennen', $record->consent_id);
+        $this->assertSame(1, ConsentRecord::count());
     }
 }
