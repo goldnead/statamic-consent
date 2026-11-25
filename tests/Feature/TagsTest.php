@@ -3,6 +3,7 @@
 namespace Goldnead\StatamicConsent\Tests\Feature;
 
 use Goldnead\StatamicConsent\Tests\TestCase;
+use Illuminate\Support\Facades\Log;
 use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\Antlers;
 
@@ -122,6 +123,28 @@ class TagsTest extends TestCase
 
         $this->assertStringNotContainsString('</script><img', $html);
         $this->assertStringContainsString('id="statamic-consent-config"', $html);
+    }
+
+    #[Test]
+    public function a_payload_that_cannot_be_encoded_leaves_no_broken_script_tag(): void
+    {
+        // Invalid UTF-8 in a client-editable text makes json_encode fail. An empty
+        // config block would look like a working setup and fail silently.
+        // Needs an optional service, or head() renders nothing at all and the test passes for the wrong reason.
+        config(['statamic-consent.services' => [
+            ['handle' => 'pixel', 'name' => "Kaputt \xB1 Name", 'category' => 'analytics'],
+        ]]);
+
+        Log::spy();
+
+        $html = $this->parse('{{ consent:head }}');
+
+        $this->assertStringNotContainsString('statamic-consent-config', $html);
+        $this->assertStringNotContainsString('vendor/statamic-consent/consent.js', $html);
+
+        Log::shouldHaveReceived('warning')
+            ->once()
+            ->with(\Mockery::type('string'), \Mockery::type('array'));
     }
 
     #[Test]

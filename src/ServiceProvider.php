@@ -174,6 +174,11 @@ class ServiceProvider extends AddonServiceProvider
             $facade = '\Goldnead\StatamicInsights\Facades\Insights';
 
             if (! class_exists($facade)) {
+                // Optional addon: debug only, a warning here would fire on every boot of an install without it.
+                Log::debug('statamic-consent: insights integration skipped, statamic-insights is not installed.', [
+                    'integration' => 'statamic-insights',
+                ]);
+
                 return;
             }
 
@@ -184,6 +189,10 @@ class ServiceProvider extends AddonServiceProvider
                 // through `__callStatic` and declares none of what it forwards,
                 // so the probe on the facade itself is always false.
                 if (! is_object($manager) || ! method_exists($manager, 'registerMetric')) {
+                    Log::debug('statamic-consent: insights integration skipped, the installed statamic-insights offers no registerMetric().', [
+                        'integration' => 'statamic-insights',
+                    ]);
+
                     return;
                 }
 

@@ -132,7 +132,9 @@ class Recorder
     {
         $days = config('statamic-consent.record.keep_days');
 
-        if (! is_numeric($days)) {
+        // A negative retention would put the cutoff in the future and delete
+        // every record, including today's. Refuse it here too, not only in the command.
+        if (! is_numeric($days) || $days < 0) {
             return 0;
         }
 

@@ -4,6 +4,7 @@ namespace Goldnead\StatamicConsent\Tags;
 
 use Goldnead\StatamicConsent\Support\Registry;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Support\Facades\Log;
 use Statamic\Tags\Tags;
 
 class Consent extends Tags
@@ -49,13 +50,26 @@ class Consent extends Tags
         }
 
         if (config('statamic-consent.assets.scripts', true)) {
-            $payload = json_encode(
-                $this->registry()->payload(),
-                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
-            );
+            try {
+                $payload = json_encode(
+                    $this->registry()->payload(),
+                    JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR
+                );
+            } catch (\JsonException $e) {
+                // Typically invalid UTF-8 in a text from the config. The runtime
+                // returns early without its config block, so it is left out as a
+                // whole: an empty block would look configured and do nothing.
+                Log::warning('statamic-consent: the runtime config could not be encoded as JSON, so no banner script is rendered.', [
+                    'reason' => $e->getMessage(),
+                ]);
 
-            $out[] = '<script id="statamic-consent-config" type="application/json">'.$payload.'</script>';
-            $out[] = '<script src="'.e($this->asset('consent.js')).'" defer></script>';
+                $payload = null;
+            }
+
+            if ($payload !== null) {
+                $out[] = '<script id="statamic-consent-config" type="application/json">'.$payload.'</script>';
+                $out[] = '<script src="'.e($this->asset('consent.js')).'" defer></script>';
+            }
         }
 
         return implode("\n", $out);
